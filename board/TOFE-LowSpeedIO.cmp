@@ -1,0 +1,283 @@
+Cmp-Mod V01 Created by CvPcb (2013-07-07 BZR 4022)-stable date = 15-Oct-15 9:51:51 AM
+
+BeginCmp
+TimeStamp = /561E2196;
+Reference = C1;
+ValeurCmp = 22pF;
+IdModule  = SM0603;
+EndCmp
+
+BeginCmp
+TimeStamp = /561E21BC;
+Reference = C2;
+ValeurCmp = 22pF;
+IdModule  = SM0603;
+EndCmp
+
+BeginCmp
+TimeStamp = /561E2F95;
+Reference = C3;
+ValeurCmp = 0.1uF;
+IdModule  = SM0603;
+EndCmp
+
+BeginCmp
+TimeStamp = /561E267A;
+Reference = C4;
+ValeurCmp = 0.1uF;
+IdModule  = SM0603;
+EndCmp
+
+BeginCmp
+TimeStamp = /56161EA3;
+Reference = C8;
+ValeurCmp = 100uF;
+IdModule  = SM1210L;
+EndCmp
+
+BeginCmp
+TimeStamp = /56161EB0;
+Reference = C9;
+ValeurCmp = 100uF;
+IdModule  = SM1210L;
+EndCmp
+
+BeginCmp
+TimeStamp = /56161EB8;
+Reference = C10;
+ValeurCmp = 0.1uF;
+IdModule  = SM0603;
+EndCmp
+
+BeginCmp
+TimeStamp = /560DBE2D;
+Reference = D1;
+ValeurCmp = LED;
+IdModule  = LED-0805-New;
+EndCmp
+
+BeginCmp
+TimeStamp = /560DBE3A;
+Reference = D2;
+ValeurCmp = LED;
+IdModule  = LED-0805-New;
+EndCmp
+
+BeginCmp
+TimeStamp = /56164EB3;
+Reference = D3;
+ValeurCmp = LED;
+IdModule  = LED-0805-New;
+EndCmp
+
+BeginCmp
+TimeStamp = /561B57D2;
+Reference = D4;
+ValeurCmp = DIODE;
+IdModule  = DO214;
+EndCmp
+
+BeginCmp
+TimeStamp = /561E48C7;
+Reference = D5;
+ValeurCmp = LED;
+IdModule  = LED-0805-New;
+EndCmp
+
+BeginCmp
+TimeStamp = /561E48CD;
+Reference = D6;
+ValeurCmp = LED;
+IdModule  = LED-0805-New;
+EndCmp
+
+BeginCmp
+TimeStamp = /561E4869;
+Reference = D7;
+ValeurCmp = LED;
+IdModule  = LED-0805-New;
+EndCmp
+
+BeginCmp
+TimeStamp = /560CFB62;
+Reference = P1;
+ValeurCmp = CONN_6X2;
+IdModule  = pin_array_6x2;
+EndCmp
+
+BeginCmp
+TimeStamp = /560D0A1F;
+Reference = P2;
+ValeurCmp = CONN_6X2;
+IdModule  = pin_array_6x2;
+EndCmp
+
+BeginCmp
+TimeStamp = /561B5AAB;
+Reference = P3;
+ValeurCmp = CONN_6X2;
+IdModule  = pin_array_6x2;
+EndCmp
+
+BeginCmp
+TimeStamp = /5614B280;
+Reference = P4;
+ValeurCmp = CONN_6X2;
+IdModule  = pin_array_6x2;
+EndCmp
+
+BeginCmp
+TimeStamp = /561E5F02;
+Reference = P5;
+ValeurCmp = CONN_2;
+IdModule  = PIN_ARRAY_2X1;
+EndCmp
+
+BeginCmp
+TimeStamp = /561E5EF3;
+Reference = P6;
+ValeurCmp = CONN_6;
+IdModule  = PIN_ARRAY-6X1;
+EndCmp
+
+BeginCmp
+TimeStamp = /561E5F1B;
+Reference = R1;
+ValeurCmp = 10K;
+IdModule  = SM0603;
+EndCmp
+
+BeginCmp
+TimeStamp = /561E34EF;
+Reference = R2;
+ValeurCmp = 10K;
+IdModule  = SM0603;
+EndCmp
+
+BeginCmp
+TimeStamp = /56160E20;
+Reference = R3;
+ValeurCmp = 10K;
+IdModule  = SM0603;
+EndCmp
+
+BeginCmp
+TimeStamp = /56164E8A;
+Reference = R4;
+ValeurCmp = 680R;
+IdModule  = RES_NET4;
+EndCmp
+
+BeginCmp
+TimeStamp = /56164E97;
+Reference = R5;
+ValeurCmp = 10K;
+IdModule  = RES_NET4;
+EndCmp
+
+BeginCmp
+TimeStamp = /5616144B;
+Reference = R6;
+ValeurCmp = 10K;
+IdModule  = SM0603;
+EndCmp
+
+BeginCmp
+TimeStamp = /561E34FC;
+Reference = R7;
+ValeurCmp = 10K;
+IdModule  = SM0603;
+EndCmp
+
+BeginCmp
+TimeStamp = /561E3577;
+Reference = R8;
+ValeurCmp = 10K;
+IdModule  = SM0603;
+EndCmp
+
+BeginCmp
+TimeStamp = /561E357D;
+Reference = R9;
+ValeurCmp = 10K;
+IdModule  = SM0603;
+EndCmp
+
+BeginCmp
+TimeStamp = /561E3D50;
+Reference = R10;
+ValeurCmp = 100R;
+IdModule  = SM0603;
+EndCmp
+
+BeginCmp
+TimeStamp = /560CFC1C;
+Reference = SW1;
+ValeurCmp = SW_PUSH;
+IdModule  = Switch_SMD;
+EndCmp
+
+BeginCmp
+TimeStamp = /560CFC29;
+Reference = SW2;
+ValeurCmp = SW_PUSH;
+IdModule  = Switch_SMD;
+EndCmp
+
+BeginCmp
+TimeStamp = /56164EC9;
+Reference = SW3;
+ValeurCmp = SW_PUSH;
+IdModule  = Switch_SMD;
+EndCmp
+
+BeginCmp
+TimeStamp = /561E43F6;
+Reference = SW4;
+ValeurCmp = SW_PUSH;
+IdModule  = Switch_SMD;
+EndCmp
+
+BeginCmp
+TimeStamp = /560CFB49;
+Reference = U1;
+ValeurCmp = TIMVIDEOS-PCIE-8X;
+IdModule  = NumatoOpsis_PCIe_8X_HL_NW;
+EndCmp
+
+BeginCmp
+TimeStamp = /561CD019;
+Reference = U2;
+ValeurCmp = AURD_COMM_SHIELD_ZERO_NEW;
+IdModule  = ARDUINO-UNO-R3_1_NEW;
+EndCmp
+
+BeginCmp
+TimeStamp = /561E0AFD;
+Reference = U3;
+ValeurCmp = PIC18F14K50;
+IdModule  = SSOP-20;
+EndCmp
+
+BeginCmp
+TimeStamp = /56164640;
+Reference = U5;
+ValeurCmp = 7805_NW;
+IdModule  = DPAK2;
+EndCmp
+
+BeginCmp
+TimeStamp = /561E21A5;
+Reference = X1;
+ValeurCmp = CRYSTAL;
+IdModule  = HC-49V;
+EndCmp
+
+BeginCmp
+TimeStamp = /561F2A51;
+Reference = X2;
+ValeurCmp = USBMICRO;
+IdModule  = MICRO_USB_B;
+EndCmp
+
+EndListe
