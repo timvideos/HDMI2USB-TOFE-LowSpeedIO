@@ -1,4 +1,4 @@
-Cmp-Mod V01 Created by CvPcb (2013-07-07 BZR 4022)-stable date = 02-11-2015 03:37:36 PM
+Cmp-Mod V01 Created by PcbNew date = 15/12/2015 02:56:45 PM
 
 BeginCmp
 TimeStamp = /561E2196;
@@ -242,7 +242,7 @@ BeginCmp
 TimeStamp = /560CFB49;
 Reference = U1;
 ValeurCmp = TIMVIDEOS-PCIE-8X;
-IdModule  = NumatoOpsis_PCIe_8X_HL_NW;
+IdModule  = NumatoOpsis_PCIe_8X_HL_NW_123;
 EndCmp
 
 BeginCmp

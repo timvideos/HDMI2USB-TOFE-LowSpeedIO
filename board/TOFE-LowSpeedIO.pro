@@ -1,4 +1,4 @@
-update=03-11-2015 11:23:58 AM
+update=02/12/2015 03:06:43 PM
 version=1
 last_client=pcbnew
 [general]
@@ -53,10 +53,10 @@ EquName1=devcms
 version=1
 LastNetListRead=TOFE-LowSpeedIO.net
 UseCmpFile=1
-PadDrill=1.500000000000
-PadDrillOvalY=1.500000000000
-PadSizeH=3.200400000000
-PadSizeV=3.200400000000
+PadDrill=0.000000000000
+PadDrillOvalY=0.000000000000
+PadSizeH=0.650240000000
+PadSizeV=0.650240000000
 PcbTextSizeV=1.500000000000
 PcbTextSizeH=1.500000000000
 PcbTextThickness=0.300000000000
