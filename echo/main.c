@@ -6,7 +6,7 @@
 // Enter a USB VID and PID in prj_usb_config.h
 
 //USB stack
-#include "..\dp_usb\usb_stack_globals.h"    // USB stack only defines Not function related.
+#include "../dp_usb/usb_stack_globals.h"    // USB stack only defines Not function related.
 #include "descriptors.h"	// JTR Only included in main.c
 #include "configwords.h"	// JTR only included in main.c
 
