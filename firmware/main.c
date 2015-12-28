@@ -12,6 +12,7 @@
 
 #include "adc.h"
 #include "virtual-i2c-eeprom.h"
+#include "usb-fpga-uart.h"
 
 // PIC18F Move reset vectors for bootloader compatibility
 #define REMAPPED_RESET_VECTOR_ADDRESS		0x1000
@@ -25,33 +26,7 @@ void USBSuspend(void);
 #pragma udata
 extern BYTE usb_device_state;
 
-void usb_fpga_service(void) {
-	BYTE RecvdByte;
-
-	// Receive and send method 1
-	// The CDC module will call usb_handler each time a BULK CDC packet is sent or received.
-	// If there is a byte ready will return with the number of bytes available and received byte in RecvdByte
-	if (cdc_poll_getc(USB_FPGA_PORT, &RecvdByte))
-		cdc_putc(USB_FPGA_PORT, RecvdByte+1);
-
-	// Receive and send method 2
-	// Same as poll_getc_cdc except that byte is NOT removed from queue.
-	// This function will wait for a byte and return and remove it from the queue when it arrives.
-	if (cdc_peek_getc(USB_FPGA_PORT, &RecvdByte)) { 
-		RecvdByte = cdc_getc(USB_FPGA_PORT); 
-		cdc_putc(USB_FPGA_PORT, RecvdByte+1);
-	}
-
-	// Receive and send method 3
-	// If there is a byte ready will return with the number of bytes available and received byte in RecvdByte
-	// use CDC_Flush_In_Now(); when it has to be sent immediately and not wait for a timeout condition.
-	if (cdc_poll_getc(USB_FPGA_PORT, &RecvdByte)) { 
-		cdc_putc(USB_FPGA_PORT, RecvdByte+1); //
-		cdc_flush_in_now(USB_FPGA_PORT); 
-	}
-}
-
-void usb_pic_service(void) {
+void usb_pic_uart_service(void) {
 	BYTE RecvdByte;
 
 	if (cdc_peek_getc(USB_PIC_PORT, &RecvdByte)) { 
@@ -72,6 +47,8 @@ void main(void) {
 	cdc_flush_registered = false;
 	usb_init(cdc_device_descriptor, cdc_config_descriptor, cdc_str_descs, USB_NUM_STRINGS);
 	usb_start(); //start the USB peripheral
+
+	usb_fpga_uart_init();
 
 #if defined USB_INTERRUPTS
 	EnableUsbPerifInterrupts(USB_TRN + USB_SOF + USB_UERR + USB_URST);
@@ -96,8 +73,8 @@ void main(void) {
 			usb_register_sof_handler(cdc_flush_on_timeout);
 			cdc_flush_registered = true;
 		}
-		usb_fpga_service();
-		usb_pic_service();
+		usb_fpga_uart_service();
+		usb_pic_uart_service();
 	} while(1);
 }
 
