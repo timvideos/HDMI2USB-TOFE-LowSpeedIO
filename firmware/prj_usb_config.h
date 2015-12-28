@@ -12,11 +12,11 @@
 #define USB_DEV (0x0001)
 
 #define USB_NUM_CONFIGURATIONS          1u
-#define USB_NUM_INTERFACES              2u
-#define USB_NUM_ENDPOINTS               3u
+#define USB_NUM_INTERFACES              4u
+#define USB_NUM_ENDPOINTS               6u
 
 
-#define MAX_EPNUM_USED                  2u
+#define MAX_EPNUM_USED                  4u
 
 #define USB_BUS_POWERED 0
 #define USB_INTERNAL_TRANSCIEVER 1
