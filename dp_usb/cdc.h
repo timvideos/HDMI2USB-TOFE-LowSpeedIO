@@ -20,22 +20,30 @@ void cdc_set_line_coding_data(void);
 void cdc_set_line_coding_status(void);
 void cdc_get_line_coding(void);
 void cdc_set_control_line_state_status(void);
-void user_configured_init(void); // JTR added. Sets up CDC endpoints after device configured.
-void WaitInReady(void);
-void WaitOutReady(void);
-BYTE getInReady(void);
-BYTE getOutReady(void);
-BYTE getda_cdc(void);
-BYTE putda_cdc(BYTE count);
-void SendZLP(void);
-BYTE getc_cdc(void);
-void putc_cdc(BYTE c);
-void CDC_Flush_In_Now(void);
-void CDCFlushOnTimeout(void);
-BYTE poll_getc_cdc(BYTE * c);
-BYTE peek_getc_cdc(BYTE * c);
-void initCDC(void);
 
+void user_configured_init(void); // JTR added. Sets up CDC endpoints after device configured.
+
+void cdc_send_zlp(void);
+
+void cdc_wait_in_ready(void);
+void cdc_wait_out_ready(void);
+
+BYTE cdc_get_in_ready(void);
+BYTE cdc_get_out_ready(void);
+
+BYTE cdc_getda(void);
+BYTE cdc_putda(BYTE count);
+
+BYTE cdc_getc(void);
+void cdc_putc(BYTE c);
+
+void cdc_flush_in_now(void);
+void cdc_flush_on_timeout(void);
+
+BYTE cdc_poll_getc(BYTE * c);
+BYTE cdc_peek_getc(BYTE * c);
+
+void cdc_init(void);
 
 struct _cdc_ControlLineState {
     int DTR : 1;

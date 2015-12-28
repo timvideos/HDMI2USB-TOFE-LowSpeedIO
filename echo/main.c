@@ -34,7 +34,7 @@ int main(void)
 {
     BYTE RecvdByte;
 
-    initCDC(); // setup the CDC state machine
+    cdc_init(); // setup the CDC state machine
     SetupBoard(); //setup the hardware, customize for your hardware
     usb_init(cdc_device_descriptor, cdc_config_descriptor, cdc_str_descs, USB_NUM_STRINGS); // initialize USB. TODO: Remove magic with macro
     usb_start(); //start the USB peripheral
@@ -72,7 +72,7 @@ int main(void)
 #endif
     } while (usb_device_state < CONFIGURED_STATE);
 
-    usb_register_sof_handler(CDCFlushOnTimeout); // Register our CDC timeout handler after device configured
+    usb_register_sof_handler(cdc_flush_on_timeout); // Register our CDC timeout handler after device configured
 
 // Main echo loop
     do {
@@ -85,23 +85,23 @@ int main(void)
 // Receive and send method 1
 // The CDC module will call usb_handler each time a BULK CDC packet is sent or received.
 // If there is a byte ready will return with the number of bytes available and received byte in RecvdByte
-        if (poll_getc_cdc(&RecvdByte)) 
-            putc_cdc(RecvdByte+1); //
+        if (cdc_poll_getc(&RecvdByte)) 
+            cdc_putc(RecvdByte+1); //
 
 // Receive and send method 2
 // Same as poll_getc_cdc except that byte is NOT removed from queue.
 // This function will wait for a byte and return and remove it from the queue when it arrives.
-        if (peek_getc_cdc(&RecvdByte)) { 
-            RecvdByte = getc_cdc(); 
-            putc_cdc(RecvdByte+1);
+        if (cdc_peek_getc(&RecvdByte)) { 
+            RecvdByte = cdc_getc(); 
+            cdc_putc(RecvdByte+1);
         }
 
 // Receive and send method 3
 // If there is a byte ready will return with the number of bytes available and received byte in RecvdByte
 // use CDC_Flush_In_Now(); when it has to be sent immediately and not wait for a timeout condition.
-        if (poll_getc_cdc(&RecvdByte)) { 
-            putc_cdc(RecvdByte+1); //
-            CDC_Flush_In_Now(); 
+        if (cdc_poll_getc(&RecvdByte)) { 
+            cdc_putc(RecvdByte+1); //
+            cdc_flush_in_now(); 
         }
     } while (1);
 
