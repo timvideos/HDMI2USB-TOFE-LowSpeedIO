@@ -13,6 +13,7 @@
 #include "adc.h"
 #include "virtual-i2c-eeprom.h"
 #include "usb-fpga-uart.h"
+#include "usb-pic-uart.h"
 
 // PIC18F Move reset vectors for bootloader compatibility
 #define REMAPPED_RESET_VECTOR_ADDRESS		0x1000
@@ -26,33 +27,17 @@ void USBSuspend(void);
 #pragma udata
 extern BYTE usb_device_state;
 
-void usb_pic_uart_service(void) {
-	BYTE RecvdByte;
-
-	if (cdc_peek_getc(USB_PIC_PORT, &RecvdByte)) { 
-		RecvdByte = cdc_getc(USB_PIC_PORT);
-		if (RecvdByte == 'r') {
-			RecvdByte = veeprom_get(0x070f);
-			veeprom_set(0x070f, RecvdByte+1);
-		}
-		cdc_putc(USB_PIC_PORT, RecvdByte);
-	}
-}
-
 #pragma code
-
-bool cdc_flush_registered;
+bool usb_service_init_after_configured;
 
 void main(void) {
 	adc_init();
 	veeprom_i2c_init();
 
 	cdc_init(); // setup the CDC state machine
-	cdc_flush_registered = false;
 	usb_init(cdc_device_descriptor, cdc_config_descriptor, cdc_str_descs, cdc_str_serial, USB_NUM_STRINGS);
+	usb_service_init_after_configured = false;
 	usb_start(); //start the USB peripheral
-
-	usb_fpga_uart_init();
 
 #if defined USB_INTERRUPTS
 	EnableUsbPerifInterrupts(USB_TRN + USB_SOF + USB_UERR + USB_URST);
@@ -70,12 +55,17 @@ void main(void) {
 		adc_service();
 		veeprom_i2c_service();
 
-		if (usb_device_state < CONFIGURED_STATE)
+		if (usb_device_state < CONFIGURED_STATE) {
+			usb_service_init_after_configured = false;
 			continue;
+		}
 
-		if (!cdc_flush_registered) {
+		if (!usb_service_init_after_configured) {
+			usb_fpga_uart_init();
+			usb_pic_uart_init();
+
 			usb_register_sof_handler(cdc_flush_on_timeout);
-			cdc_flush_registered = true;
+			usb_service_init_after_configured = true;
 		}
 		usb_fpga_uart_service();
 		usb_pic_uart_service();

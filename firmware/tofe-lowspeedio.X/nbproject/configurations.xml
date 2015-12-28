@@ -17,6 +17,7 @@
       <itemPath>../virtual-i2c-eeprom.h</itemPath>
       <itemPath>../debug.h</itemPath>
       <itemPath>../usb-fpga-uart.h</itemPath>
+      <itemPath>../usb-pic-uart.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -37,6 +38,7 @@
       <itemPath>../debug.c</itemPath>
       <itemPath>../usb-fpga-uart.c</itemPath>
       <itemPath>../descriptors.c</itemPath>
+      <itemPath>../usb-pic-uart.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
