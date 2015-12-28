@@ -23,25 +23,25 @@ void cdc_set_control_line_state_status(void);
 
 void user_configured_init(void); // JTR added. Sets up CDC endpoints after device configured.
 
-void cdc_send_zlp(void);
+void cdc_send_zlp(BYTE port);
 
-void cdc_wait_in_ready(void);
-void cdc_wait_out_ready(void);
+void cdc_wait_in_ready(BYTE port);
+void cdc_wait_out_ready(BYTE port);
 
-BYTE cdc_get_in_ready(void);
-BYTE cdc_get_out_ready(void);
+BYTE cdc_get_in_ready(BYTE port);
+BYTE cdc_get_out_ready(BYTE port);
 
-BYTE cdc_getda(void);
-BYTE cdc_putda(BYTE count);
+BYTE cdc_getda(BYTE port);
+BYTE cdc_putda(BYTE port, BYTE count);
 
-BYTE cdc_getc(void);
-void cdc_putc(BYTE c);
+BYTE cdc_getc(BYTE port);
+void cdc_putc(BYTE port, BYTE c);
 
-void cdc_flush_in_now(void);
+void cdc_flush_in_now(BYTE port);
 void cdc_flush_on_timeout(void);
 
-BYTE cdc_poll_getc(BYTE * c);
-BYTE cdc_peek_getc(BYTE * c);
+BYTE cdc_poll_getc(BYTE port, BYTE * c);
+BYTE cdc_peek_getc(BYTE port, BYTE * c);
 
 void cdc_init(void);
 

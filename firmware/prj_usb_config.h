@@ -8,7 +8,7 @@
 //#define CDC_FLUSH_MS 4 // how many ms timeout before cdc in to host is sent
 
 #define USB_VID (0x2a19)  // Numato Labs
-#define USB_PID (0x5446)  // Low Speed I/O - TOFE Expansion Board
+#define USB_PID (0x5445)  // Low Speed I/O - TOFE Expansion Board
 #define USB_DEV (0x0001)
 
 #define USB_NUM_CONFIGURATIONS          1u
@@ -42,7 +42,7 @@
  * be drawn from bus i suspend mode */
 //#define usb_low_power_request() Nop()
 
-#define CDC_BUFFER_SIZE 32u
+#define CDC_BUFFER_SIZE 16u
 
 #define CLOCK_FREQ 48000000
 #define BAUDCLOCK_FREQ 12000000 // (48000000 /4) required for baud rate calculations

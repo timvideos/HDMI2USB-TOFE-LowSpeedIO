@@ -85,23 +85,29 @@ int main(void)
 // Receive and send method 1
 // The CDC module will call usb_handler each time a BULK CDC packet is sent or received.
 // If there is a byte ready will return with the number of bytes available and received byte in RecvdByte
-        if (cdc_poll_getc(&RecvdByte)) 
-            cdc_putc(RecvdByte+1); //
+        if (cdc_poll_getc(0, &RecvdByte)) 
+            cdc_putc(0, RecvdByte+1); //
 
 // Receive and send method 2
 // Same as poll_getc_cdc except that byte is NOT removed from queue.
 // This function will wait for a byte and return and remove it from the queue when it arrives.
-        if (cdc_peek_getc(&RecvdByte)) { 
-            RecvdByte = cdc_getc(); 
-            cdc_putc(RecvdByte+1);
+        if (cdc_peek_getc(0, &RecvdByte)) { 
+            RecvdByte = cdc_getc(0); 
+            cdc_putc(0, RecvdByte+1);
         }
 
 // Receive and send method 3
 // If there is a byte ready will return with the number of bytes available and received byte in RecvdByte
 // use CDC_Flush_In_Now(); when it has to be sent immediately and not wait for a timeout condition.
-        if (cdc_poll_getc(&RecvdByte)) { 
-            cdc_putc(RecvdByte+1); //
-            cdc_flush_in_now(); 
+        if (cdc_poll_getc(0, &RecvdByte)) { 
+            cdc_putc(0, RecvdByte+1); //
+            cdc_flush_in_now(0); 
+        }
+
+        if (cdc_peek_getc(1, &RecvdByte)) { 
+            RecvdByte = cdc_getc(1); 
+            cdc_putc(1, RecvdByte+2);
+            cdc_putc(0, RecvdByte+2);
         }
     } while (1);
 
