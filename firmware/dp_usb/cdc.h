@@ -15,6 +15,8 @@ or send a letter to
 #ifndef __CDC_H__
 #define __CDC_H__
 
+#include "usb_stack_globals.h"
+
 void cdc_setup(void);
 void cdc_set_line_coding_data(void);
 void cdc_set_line_coding_status(void);
@@ -28,8 +30,8 @@ void cdc_send_zlp(BYTE port);
 void cdc_wait_in_ready(BYTE port);
 void cdc_wait_out_ready(BYTE port);
 
-BYTE cdc_get_in_ready(BYTE port);
-BYTE cdc_get_out_ready(BYTE port);
+BYTE cdc_in_ready(BYTE port);
+BYTE cdc_out_ready(BYTE port);
 
 BYTE cdc_getda(BYTE port);
 BYTE cdc_putda(BYTE port, BYTE count);

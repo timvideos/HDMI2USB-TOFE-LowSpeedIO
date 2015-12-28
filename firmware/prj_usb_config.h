@@ -51,5 +51,12 @@
 
 #define USB_INTERRUPTS //use interrupts instead of polling
 
+#define EnableUsbHighPriInterrupt() \
+	do { RCONbits.IPEN = 1; IPR2bits.USBIP = 1; INTCONbits.GIEH = 1;} while(0)
+#define EnableUsbLowPriInterrupt() \
+	do { RCONbits.IPEN = 1; IPR2bits.USBIP = 0; INTCONbits.GIEL = 1;} while(0)
+
+#define USB_FPGA_PORT	0 // First CDC Port is connected to the FPGA
+#define USB_PIC_PORT	1 // Second CDC Port is connected to the PIC internally
 
 #endif

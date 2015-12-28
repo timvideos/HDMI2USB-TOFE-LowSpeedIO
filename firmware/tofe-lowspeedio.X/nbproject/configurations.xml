@@ -13,6 +13,9 @@
       <itemPath>../configwords.h</itemPath>
       <itemPath>../descriptors.h</itemPath>
       <itemPath>../prj_usb_config.h</itemPath>
+      <itemPath>../adc.h</itemPath>
+      <itemPath>../virtual-i2c-eeprom.h</itemPath>
+      <itemPath>../debug.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -27,6 +30,10 @@
         <itemPath>../dp_usb/cdc.c</itemPath>
       </logicalFolder>
       <itemPath>../main.c</itemPath>
+      <itemPath>../adc.c</itemPath>
+      <itemPath>../virtual-i2c-eeprom.c</itemPath>
+      <itemPath>../virtual-i2c-eeprom-contents.c</itemPath>
+      <itemPath>../debug.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

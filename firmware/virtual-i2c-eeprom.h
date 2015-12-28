@@ -5,9 +5,8 @@
 extern "C" {
 #endif
 
-void veeprom_init(void);
-void veeprom_interrupt(void);
-void veeprom_service(void);
+void veeprom_i2c_init(void);
+void veeprom_i2c_service(void);
 
 #ifdef	__cplusplus
 }
