@@ -78,8 +78,8 @@ void veeprom_set(uint16_t addr, uint8_t data) {
 }
 
 // Large data array stored in the PIC Flash
-extern const uint8_t _veeprom_flash_data[];
-extern const uint16_t _veeprom_flash_size;
+extern const rom uint8_t _veeprom_flash_data[];
+extern const rom uint16_t _veeprom_flash_size;
 uint8_t _veeprom_get_flash(uint16_t addr) {
 	if (addr < _veeprom_flash_size) {
 		return _veeprom_flash_data[addr];
@@ -296,6 +296,14 @@ void veeprom_i2c_init(void) {
 	// Set SCL and SDA as inputs
 	TRISBbits.RB6 = 1;	// SCL
 	TRISBbits.RB4 = 1;	// SDA
+
+	// Enable weak pull ups
+	WPUBbits.WPUB6 = 1;
+	WPUBbits.WPUB4 = 1;
+
+	// No analog on RB6
+	// Disable Analog on port RB4
+	ANSELHbits.ANS10 = 0;
 
 	// Setup the SSPSTAT register
 	SSPSTATbits.SMP = 0;	// Disable Slew rate control

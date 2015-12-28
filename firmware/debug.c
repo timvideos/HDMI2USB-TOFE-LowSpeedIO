@@ -19,7 +19,7 @@ void debug_send_data(char* data) {
 	}
 }
 
-void debug_send_cdata(const const char* data) {
+void debug_send_cdata(const rom char* data) {
 	while(*data != '\0') {
 		cdc_putc(USB_PIC_PORT, *data);	
 		data++;

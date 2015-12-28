@@ -34,6 +34,12 @@ void adc_init(void) {
 	TRISCbits.TRISC3 = 1;
 	ANSELbits.ANS7 = 1;
 
+	// Disable ADC channels used by other modules.
+	// RB5 is used by the UART
+	ANSELHbits.ANS11 = 0;
+	// RB4 is used by the I2C
+	ANSELHbits.ANS10 = 0;
+
 	for (i = 0; i < ADC_CHANNELS; i++) {
 		_adc[i].updated = 0;
 		_adc[i].enabled = 1;

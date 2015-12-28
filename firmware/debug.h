@@ -16,6 +16,6 @@ void debug_init(void);
 void debug_service(void);
 bool debug_can_send(void);
 void debug_send_data(char* data);
-void debug_send_cdata(const const char *data);
+void debug_send_cdata(const rom char* data);
 
 #endif	/* DEBUG_H */
