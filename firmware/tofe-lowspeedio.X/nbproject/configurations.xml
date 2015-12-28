@@ -36,6 +36,7 @@
       <itemPath>../virtual-i2c-eeprom-contents.c</itemPath>
       <itemPath>../debug.c</itemPath>
       <itemPath>../usb-fpga-uart.c</itemPath>
+      <itemPath>../descriptors.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

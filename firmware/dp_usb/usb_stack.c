@@ -30,6 +30,7 @@ Influence and inspiration taken from http://pe.ece.olin.edu/ece/projects.html
 ROMPTR const BYTE *usb_device_descriptor;
 ROMPTR const BYTE *usb_config_descriptor;
 ROMPTR const BYTE *usb_string_descriptor;
+const BYTE *usb_serial_descriptor;
 int usb_num_string_descriptors;
 
 usb_handler_t sof_handler;
@@ -85,17 +86,11 @@ BDentry *EP0_Outbdp, *EP0_Inbdp; // Dito
 BYTE IsSuspended = 0;
 ROMPTR const BYTE *usb_rom_ptr;
 size_t usb_rom_len;
+const BYTE *usb_serial_ptr;
+size_t usb_serial_len;
 volatile BYTE usbrequesterrorflag;
 
-void usb_init(ROMPTR const BYTE *device_descriptor,
-        ROMPTR const BYTE *config_descriptor,
-        ROMPTR const BYTE *string_descriptor,
-        int num_string_descriptors) {
-
-    usb_device_descriptor = device_descriptor;
-    usb_config_descriptor = config_descriptor;
-    usb_string_descriptor = string_descriptor;
-    usb_num_string_descriptors = num_string_descriptors;
+void usb_setup(void) {
     sof_handler = NULL;
     class_setup_handler = NULL;
     vendor_setup_handler = NULL;
@@ -106,11 +101,35 @@ void usb_init(ROMPTR const BYTE *device_descriptor,
     EnablePacketTransfer();
 }
 
+void usb_init(ROMPTR const BYTE *device_descriptor,
+        ROMPTR const BYTE *config_descriptor,
+        ROMPTR const BYTE *string_descriptor,
+        const BYTE *serial_descriptor,
+        int num_string_descriptors) {
+
+    usb_device_descriptor = device_descriptor;
+    usb_config_descriptor = config_descriptor;
+    usb_string_descriptor = string_descriptor;
+    usb_serial_descriptor = serial_descriptor;
+    usb_num_string_descriptors = num_string_descriptors;
+    usb_setup();
+}
+
 void usb_start(void) {
     EnableUsb(); // Enable USB-hardware
     usb_device_state = ATTACHED_STATE;
     while (SingleEndedZeroIsSet()); // Busywait for initial power-up
     usb_device_state = DEFAULT_STATE; //JTR2
+}
+
+void usb_hard_reset(void) {
+    BYTE i;
+    UCONbits.USBEN = 0;
+    for(i = 0; i < 255; i++) {
+        _asm nop _endasm
+    }
+    usb_setup();
+    usb_start();
 }
 
 void usb_handle_error(void) {
@@ -286,6 +305,7 @@ void usb_handle_setup(void) {
 
 void usb_handle_StandardDeviceRequest(BDentry *bdp) {
     BYTE *packet = bdp->BDADDR;
+    size_t packet_len;
     int i;
 
     switch (packet[USB_bRequest]) {
@@ -348,6 +368,16 @@ void usb_handle_StandardDeviceRequest(BDentry *bdp) {
                     if (packet[USB_bDescriptorIndex] >= usb_num_string_descriptors) {
                         flag_usb_RequestError();
                         break;
+                    }
+                    if (packet[USB_bDescriptorIndex] == usb_num_string_descriptors-1) {
+                        usb_serial_ptr = usb_serial_descriptor;
+                        usb_serial_len = usb_serial_ptr[0]; // Get BYTE length from descriptor always at byte [0]
+                        if ((0 == packet[USB_wLengthHigh] && packet[USB_wLength] < usb_serial_ptr[0])) {
+                            usb_serial_len = packet[USB_wLength];
+                        }
+                        usb_send_serial();
+                        usb_set_in_handler(0, usb_send_serial);
+                        return;
                     }
                     usb_rom_ptr = usb_string_descriptor;
                     usb_rom_len = usb_rom_ptr[0]; // Get BYTE length from descriptor always at byte [0]
@@ -596,3 +626,23 @@ void usb_send_rom(void) {
     usb_rom_len -= packet_len;
 }
 
+void usb_send_serial(void) {
+    unsigned int i;
+    size_t packet_len;
+    if (usb_serial_len) {
+        packet_len = (usb_serial_len < USB_EP0_BUFFER_SIZE) ? usb_serial_len : USB_EP0_BUFFER_SIZE; // JTR changed from MAX_BUFFER_SIZE
+
+        for (i = 0; i < packet_len; i++) {
+            EP0_Inbdp->BDADDR[i] = usb_serial_ptr[i];
+        }
+    } else {
+        packet_len = 0;
+        usb_unset_in_handler(0);
+    }
+
+    EP0_Inbdp->BDCNT = (BYTE) packet_len;
+    EP0_Inbdp->BDSTAT = ((EP0_Inbdp->BDSTAT ^ DTS) & DTS) | UOWN | DTSEN; // Packet length always less then 256 on endpoint 0
+
+    usb_serial_ptr += packet_len;
+    usb_serial_len -= packet_len;
+}

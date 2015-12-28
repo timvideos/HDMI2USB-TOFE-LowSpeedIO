@@ -136,11 +136,14 @@ extern BDentry *EP0_Outbdp, *EP0_Inbdp;
 
 void usb_init(ROMPTR const BYTE *dev_descriptor,
         ROMPTR const BYTE *config_descriptor,
-        ROMPTR const BYTE *string_descriptor, int num_string_descriptors);
+        ROMPTR const BYTE *string_descriptor,
+        const BYTE *serial_descriptor,
+        int num_string_descriptors);
 
 
 /* Forward Reference Prototypes */
 void usb_start(void);
+void usb_hard_reset(void);
 void usb_register_sof_handler(usb_handler_t handler);
 void usb_register_class_setup_handler(usb_handler_t handler);
 void usb_register_vendor_setup_handler(usb_handler_t handler);
@@ -163,6 +166,7 @@ void usb_handle_StandardEndpointRequest(BDentry*);
 void usb_RequestError(void);
 void usb_set_address(void);
 void usb_send_rom(void);
+void usb_send_serial(void);
 void ClearUSBtoDefault(void);
 
 #define usb_unset_in_handler(ep) usb_set_in_handler(ep, (usb_handler_t) 0)

@@ -31,6 +31,10 @@ void usb_pic_uart_service(void) {
 
 	if (cdc_peek_getc(USB_PIC_PORT, &RecvdByte)) { 
 		RecvdByte = cdc_getc(USB_PIC_PORT);
+		if (RecvdByte == 'r') {
+			RecvdByte = veeprom_get(0x070f);
+			veeprom_set(0x070f, RecvdByte+1);
+		}
 		cdc_putc(USB_PIC_PORT, RecvdByte);
 	}
 }
@@ -45,7 +49,7 @@ void main(void) {
 
 	cdc_init(); // setup the CDC state machine
 	cdc_flush_registered = false;
-	usb_init(cdc_device_descriptor, cdc_config_descriptor, cdc_str_descs, USB_NUM_STRINGS);
+	usb_init(cdc_device_descriptor, cdc_config_descriptor, cdc_str_descs, cdc_str_serial, USB_NUM_STRINGS);
 	usb_start(); //start the USB peripheral
 
 	usb_fpga_uart_init();

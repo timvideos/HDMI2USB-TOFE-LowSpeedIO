@@ -18,6 +18,8 @@ This file makes the PIC appear as an 24 series EEPROM on it's I2C interface.
 #include "virtual-i2c-eeprom.h"
 #include "adc.h"
 #include "debug.h"
+#include "descriptors.h"
+#include "dp_usb/usb_stack.h"
 
 /**
 The virtual EEPROM contents is mapped the following;
@@ -28,6 +30,7 @@ The virtual EEPROM contents is mapped the following;
 | 0x0000 | 0x03ff | 1024         | RO  | TOFE ID area                 |
 | 0x0400 | 0x04ff |  256         | RW  | PIC's internal EEPROM        |
 | 0x0600 | 0x06ff |  256         | RO  | Autopopulated ADC values     |
+| 0x0700 | 0x070f |   16         | RW  | USB Serial Number            |
 +--------+--------+--------------+-----+------------------------------+
 */
 
@@ -37,11 +40,14 @@ The virtual EEPROM contents is mapped the following;
 #define VEEPROM_EEPROM_END	0x04ff
 #define VEEPROM_ADC_START	0x0600
 #define VEEPROM_ADC_END		0x06ff
+#define VEEPROM_USB_START	0x0700
+#define VEEPROM_USB_END		0x070f
 
 // Virtual EEPROM get functions
 uint8_t _veeprom_get_flash(uint16_t addr);
 uint8_t _veeprom_get_eeprom(uint8_t addr);
 uint8_t _veeprom_get_adc(uint8_t addr);
+uint8_t _veeprom_get_usb(uint8_t addr);
 uint8_t veeprom_get(uint16_t addr) {
 	// Internal Flash Area
 	if (addr >= VEEPROM_FLASH_START && addr <= VEEPROM_FLASH_END) {
@@ -55,6 +61,10 @@ uint8_t veeprom_get(uint16_t addr) {
 	if (addr >= VEEPROM_ADC_START && addr <= VEEPROM_ADC_END) {
 		return _veeprom_get_adc((uint8_t)(addr&0xff));
 	}
+	// USB Area
+	if (addr >= VEEPROM_USB_START && addr <= VEEPROM_USB_END) {
+		return _veeprom_get_usb((uint8_t)(addr&0x0f));
+	}
 	return 0xff;
 }
 
@@ -62,6 +72,7 @@ uint8_t veeprom_get(uint16_t addr) {
 void _veeprom_set_flash(uint16_t addr, uint8_t data);
 void _veeprom_set_eeprom(uint8_t addr, uint8_t data);
 void _veeprom_set_adc(uint8_t addr, uint8_t data);
+void _veeprom_set_usb(uint8_t addr, uint8_t data);
 void veeprom_set(uint16_t addr, uint8_t data) {
 	// Internal Flash Area
 	if (addr >= VEEPROM_FLASH_START && addr <= VEEPROM_FLASH_END) {
@@ -74,6 +85,10 @@ void veeprom_set(uint16_t addr, uint8_t data) {
 	// ADC Area
 	if (addr >= VEEPROM_ADC_START && addr <= VEEPROM_ADC_END) {
 		_veeprom_set_adc((uint8_t)(addr&0xff), data);
+	}
+	// USB Area
+	if (addr >= VEEPROM_USB_START && addr <= VEEPROM_USB_END) {
+		_veeprom_set_usb((uint8_t)(addr&0x0f), data);
 	}
 }
 
@@ -188,6 +203,30 @@ void _veeprom_set_adc(uint8_t addr, uint8_t data) {
 		_adc[channel].updated = data;
 	}
 }
+
+// PIC's USB Serial Number string
+uint8_t _veeprom_get_usb(uint8_t addr) {
+	uint8_t offset = 2 + addr*2;
+	if (addr > 16)
+		return 0xff;
+
+	return cdc_str_serial[offset];
+}
+void _veeprom_set_usb(uint8_t addr, uint8_t data) {
+	uint8_t i;
+	uint8_t offset = 2 + addr*2;
+	if (addr > 16)
+		return;
+
+	cdc_str_serial[offset] = data;
+	if (addr == 15) {
+		// Reset USB as serial number has changed.
+		usb_hard_reset();
+	}
+}
+
+
+
 
 /**
  * I2C Interface
