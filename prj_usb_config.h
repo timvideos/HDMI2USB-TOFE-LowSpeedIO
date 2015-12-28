@@ -7,9 +7,9 @@
 //#define UART_BAUD_setup(x)  SPBRG = x & 0xFFu; SPBRGH = (x >> 8) & 0xFFu
 //#define CDC_FLUSH_MS 4 // how many ms timeout before cdc in to host is sent
 
-#define USB_VID (0x4d8)
-#define USB_PID (0x000a)  // Microchip CDC  
-#define USB_DEV 0x0002
+#define USB_VID (0x2a19)  // Numato Labs
+#define USB_PID (0x5446)  // Low Speed I/O - TOFE Expansion Board
+#define USB_DEV (0x0001)
 
 #define USB_NUM_CONFIGURATIONS          1u
 #define USB_NUM_INTERFACES              2u

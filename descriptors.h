@@ -126,12 +126,77 @@ ROMPTR const unsigned char cdc_config_descriptor[] = {
 
 
 ROM const unsigned char cdc_str_descs[] = {
-        /* 0 */                  4, USB_STRING_DESCRIPTOR_TYPE, LOWB(USB_LANGID_English_United_States), HIGHB(USB_LANGID_English_United_States),
-        /* USB_iManufacturer */ 42, USB_STRING_DESCRIPTOR_TYPE, 'D',0,'a',0,'n',0,'g',0,'e',0,'r',0,'o',0,'u',0,'s',0,' ',0,'P',0,'r',0,'o',0,'t',0,'o',0,'t',0,'y',0,'p',0,'e',0,'s',0,
-        /* USB_iProduct */      18, USB_STRING_DESCRIPTOR_TYPE, 'C',0,'D',0,'C',0,' ',0,'T',0,'e',0,'s',0,'t',0,
-        /* USB_iSerialNum */    18, USB_STRING_DESCRIPTOR_TYPE, '0',0,'0',0,'0',0,'0',0,'0',0,'0',0,'0',0,'1',0
+        /* Language specifier */
+	4, USB_STRING_DESCRIPTOR_TYPE, LOWB(USB_LANGID_English_United_States), HIGHB(USB_LANGID_English_United_States),
+        /* USB_iManufacturer - 'Numato Labs' */
+	22, USB_STRING_DESCRIPTOR_TYPE,
+	'N',0,
+	'u',0,
+	'm',0,
+	'a',0,
+	't',0,
+	'o',0,
+	' ',0,
+	'L',0,
+	'a',0,
+	'b',0,
+	's',0,
+        /* USB_iProduct - 'Low Speed I/O - TOFE Expansion Board' */
+	72, USB_STRING_DESCRIPTOR_TYPE,
+	'L',0,
+	'o',0,
+	'w',0,
+	' ',0,
+	'S',0,
+	'p',0,
+	'e',0,
+	'e',0,
+	'd',0,
+	' ',0,
+	'I',0,
+	'/',0,
+	'O',0,
+	' ',0,
+	'-',0,
+	' ',0,
+	'T',0,
+	'O',0,
+	'F',0,
+	'E',0,
+	' ',0,
+	'E',0,
+	'x',0,
+	'p',0,
+	'a',0,
+	'n',0,
+	's',0,
+	'i',0,
+	'o',0,
+	'n',0,
+	' ',0,
+	'B',0,
+	'o',0,
+	'a',0,
+	'r',0,
+	'd',0,
+        /* USB_iSerialNum  '0123456789abcdef' */
+	32, USB_STRING_DESCRIPTOR_TYPE,
+	'U',0, // 0
+	'n',0, // 1
+	'c',0, // 2
+	'o',0, // 3
+	'n',0, // 4
+	'f',0, // 5
+	'i',0, // 6
+	'g',0, // 7
+	'u',0, // 8
+	'r',0, // 9
+	'e',0, // a
+	'd',0, // b
+	' ',0, // c
+	':',0, // d
+	'-',0, // e
+	'(',0, // f
 };
-
-/* TODO: Develop prebuild script for generating all complex structures */
 
 #endif//__DESCRIPTORS_H__
