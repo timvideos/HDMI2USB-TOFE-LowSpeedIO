@@ -4,6 +4,13 @@
     <logicalFolder name="HeaderFiles"
                    displayName="Header Files"
                    projectFiles="true">
+      <logicalFolder name="f1" displayName="dp_usb" projectFiles="true">
+        <itemPath>../dp_usb/cdc.h</itemPath>
+        <itemPath>../dp_usb/picusb.h</itemPath>
+        <itemPath>../dp_usb/usb_stack.h</itemPath>
+        <itemPath>../dp_usb/usb_stack_globals.h</itemPath>
+      </logicalFolder>
+      <itemPath>../configwords.h</itemPath>
       <itemPath>../descriptors.h</itemPath>
       <itemPath>../prj_usb_config.h</itemPath>
     </logicalFolder>
@@ -15,9 +22,11 @@
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
                    projectFiles="true">
+      <logicalFolder name="dp_usb" displayName="dp_usb" projectFiles="true">
+        <itemPath>../dp_usb/usb_stack.c</itemPath>
+        <itemPath>../dp_usb/cdc.c</itemPath>
+      </logicalFolder>
       <itemPath>../main.c</itemPath>
-      <itemPath>../../dp_usb/usb_stack.c</itemPath>
-      <itemPath>../../dp_usb/cdc.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -27,7 +36,6 @@
   </logicalFolder>
   <sourceRootList>
     <Elem>..</Elem>
-    <Elem>../../dp_usb</Elem>
   </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
@@ -71,38 +79,30 @@
         <property key="enable-all-optimizations" value="true"/>
         <property key="enable-int-promotion" value="false"/>
         <property key="enable-multi-bank-stack-model" value="false"/>
-        <property key="enable-ob" value="false"/>
-        <property key="enable-od" value="false"/>
+        <property key="enable-ob" value="true"/>
+        <property key="enable-od" value="true"/>
         <property key="enable-om" value="true"/>
         <property key="enable-on" value="true"/>
-        <property key="enable-op" value="false"/>
-        <property key="enable-opa" value="false"/>
-        <property key="enable-or" value="false"/>
+        <property key="enable-op" value="true"/>
+        <property key="enable-opa" value="true"/>
+        <property key="enable-or" value="true"/>
         <property key="enable-os" value="true"/>
-        <property key="enable-ot" value="false"/>
-        <property key="enable-ou" value="false"/>
+        <property key="enable-ot" value="true"/>
+        <property key="enable-ou" value="true"/>
         <property key="enable-ow" value="true"/>
-        <property key="extra-include-directories" value="..;."/>
-        <property key="optimization-master" value="Custom"/>
+        <property key="extra-include-directories" value="../;../dp_usb"/>
+        <property key="optimization-master" value="Enable all"/>
         <property key="preprocessor-macros" value=""/>
         <property key="procedural-abstraction-passes" value="4"/>
         <property key="storage-class" value="sca"/>
         <property key="verbose" value="false"/>
         <property key="warning-level" value="2"/>
       </C18>
-      <C18-AS>
-        <property key="cross.reference.file" value=""/>
-        <property key="default.radix" value="HEX"/>
-        <property key="enable.case.sensitivity" value="true"/>
-        <property key="hex.output.format" value="INHX32"/>
-        <property key="preprocessor.macros" value=""/>
-        <property key="warning.level" value="0"/>
-      </C18-AS>
       <C18-LD>
-        <property key="cod-file" value="true"/>
-        <property key="extra-lib-directories" value="../C:/MCC18/lib;."/>
+        <property key="cod-file" value="false"/>
+        <property key="extra-lib-directories" value=""/>
         <property key="hex-output-format" value="INHX32"/>
-        <property key="map-file" value="&quot;$(BINDIR_)$(TARGETBASE).map&quot;"/>
+        <property key="map-file" value="${DISTDIR}/${PROJECTNAME}.${IMAGE_TYPE}.map"/>
       </C18-LD>
       <C18LanguageToolchain>
         <property key="extended-mode" value="false"/>

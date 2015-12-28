@@ -3,12 +3,13 @@
     <type>com.microchip.mplab.nbide.embedded.makeproject</type>
     <configuration>
         <data xmlns="http://www.netbeans.org/ns/make-project/1">
-            <name>echo-demo</name>
-            <creation-uuid>066afcd6-a398-47dc-918e-71a280f38aec</creation-uuid>
+            <name>tofe-lowspeedio</name>
+            <creation-uuid>bc337cb2-2279-496c-88f6-9849a25e97d7</creation-uuid>
             <make-project-type>0</make-project-type>
             <c-extensions>c</c-extensions>
             <cpp-extensions/>
             <header-extensions>h</header-extensions>
+            <asminc-extensions/>
             <sourceEncoding>ISO-8859-1</sourceEncoding>
             <make-dep-projects/>
         </data>
