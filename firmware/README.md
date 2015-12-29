@@ -6,11 +6,13 @@ the following features;
  * Emulation of a 24 series EEPROM for TOFE ID Detection
  * Access to the ADC data.
 
-## Origin
+# Building
 
 Currently this requires the following tools to build;
- * [Microchip MPLAB.X](https://github.com/DangerousPrototypes/USB_stack) and
+ * [Microchip MPLAB.X](http://microchip.com/mplabx) and
  * [C18 Compiler](http://www.microchip.com/c18)
+
+See the [NOTES.md](NOTES.md) file for information on setting up the C18 compiler.
 
 ## Bootloader
 
