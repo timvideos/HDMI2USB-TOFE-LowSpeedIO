@@ -38,6 +38,7 @@ BYTE cdc_putda(BYTE port, BYTE count);
 
 BYTE cdc_getc(BYTE port);
 void cdc_putc(BYTE port, BYTE c);
+void cdc_put_cstr(BYTE port, const rom char* s);
 
 void cdc_flush_in_now(BYTE port);
 void cdc_flush_on_timeout(void);

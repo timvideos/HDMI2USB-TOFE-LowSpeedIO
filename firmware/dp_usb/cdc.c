@@ -434,6 +434,13 @@ void cdc_putc(BYTE port, BYTE c) {
      return;
 }
 
+void cdc_put_cstr(BYTE port, const rom char* msg) {
+    while(*msg != '\0') {
+        cdc_putc(port, *msg);
+        msg++;
+    }
+}
+
 /******************************************************************************/
 // Waits for a byte to be available and returns that byte as a
 // function return value. The byte is removed from the CDC OUT queue.

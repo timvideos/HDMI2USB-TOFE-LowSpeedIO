@@ -72,7 +72,7 @@ void usb_pic_uart_service(void) {
 					}
 				}
 				if (!c) {
-					debug_send_cdata("Unknown command. Try 'help'.\r\n");
+					cdc_put_cstr(USB_PIC_PORT, "Unknown command. Try 'help'.\r\n");
 				} else {
 					cdc_putc(USB_PIC_PORT, '\r');
 					cdc_putc(USB_PIC_PORT, '\n');
@@ -108,7 +108,7 @@ void usb_pic_uart_service(void) {
 			cdc_putc(USB_PIC_PORT, c);		// Remote Echo
 			recv_buffer[recv_buffer_i++] = c;
 			if (recv_buffer_i > (MAX_COMMAND_SIZE-1)) {
-				debug_send_cdata("Command too long.\r\n");
+				cdc_put_cstr(USB_PIC_PORT, "Command too long.\r\n");
 				recv_buffer_i = 0;
 			}
 		}
@@ -119,7 +119,7 @@ void command_help(char* cmd) {
 }
 
 void command_ping(char* cmd) {
-	debug_send_cdata("PONG!");
+	cdc_put_cstr(USB_PIC_PORT, "PONG!");
 }
 
 void command_adc(char* cmd) {
