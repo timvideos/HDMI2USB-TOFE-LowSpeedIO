@@ -450,6 +450,7 @@ void veeprom_i2c_interrupt(void) {
 
 	debug_data[7] = '0' + _veeprom_i2c_data_count;
 	debug_data[8] = '0' + _veeprom_i2c_addr_current;
+	//debug_printf(DEBUG_INFO, DEBUG_EEPROM, "%s", debug);
 	
 	if (SSPSTATbits.R_W) {
 		if (!SSPSTATbits.P) {
@@ -466,16 +467,5 @@ void veeprom_i2c_interrupt(void) {
 }
 
 void veeprom_i2c_service(void) {
-	if(debug_can_send()) {
-		if (debug_data_sent) {
-			debug_data[0] = '\0';
-			debug_data_sent = false;
-		}
-		if (debug_data[0] == '\0')
-			veeprom_i2c_interrupt();
-		if (debug_data[0] != '\0') {
-			debug_send_data((char*)(&debug_data[0]));
-			debug_data_sent = true;
-		}
-	}
+	veeprom_i2c_interrupt();
 }
