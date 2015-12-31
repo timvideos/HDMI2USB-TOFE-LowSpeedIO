@@ -25,6 +25,8 @@ void command_ping(char* cmd);
 void command_adc(char* cmd);
 void command_eeprom(char* cmd);
 void command_reset(char* cmd);
+void command_debug(char* cmd);
+void command_flash(char* cmd);
 
 const rom struct command commands[] = {
 	{"help", command_help},
@@ -32,6 +34,7 @@ const rom struct command commands[] = {
 	{"adc", command_adc},
 	{"prom", command_eeprom},
 	{"reset", command_reset},
+	{"flash", command_flash},
 };
 
 void usb_pic_uart_init(void) {
@@ -130,4 +133,30 @@ void command_eeprom(char* cmd) {
 
 void command_reset(char* cmd) {
 	usb_hard_reset();
+}
+
+void _command_flash_countdown(uint8_t c) {
+	uint16_t i, j;
+	cdc_putc(USB_PIC_PORT, '0'+c);
+	cdc_flush_in_now(USB_PIC_PORT);
+	for(j = 0; j < 0xf; j++) {
+		for(i = 0; i < 0xffff; i++) {
+#ifndef USB_INTERRUPTS
+        	        usb_handler();
+#endif
+		}
+		cdc_putc(USB_PIC_PORT, '.');
+		cdc_flush_in_now(USB_PIC_PORT);
+	}
+}
+
+/* Jump to the USB boot loader */
+void command_flash(char* cmd) {
+	cdc_put_cstr(USB_PIC_PORT, "Rebooting the PIC\r\n");
+	cdc_put_cstr(USB_PIC_PORT, "Hold flash button now...\r\n");
+	_command_flash_countdown(3);
+	_command_flash_countdown(2);
+	_command_flash_countdown(1);
+	Reset();
+	cdc_put_cstr(USB_PIC_PORT, "WTF? Jump failed...\r\n");
 }
