@@ -1,6 +1,7 @@
 
 #include "usb-pic-uart.h"
 
+#include <p18f14k50.h>
 #include <string.h>
 
 #include "prj_usb_config.h"
@@ -16,8 +17,10 @@ char recv_buffer[MAX_COMMAND_SIZE];
 typedef void (* PTR_CLI_FUNCTPTR)(char* cmd);
 
 struct command {
-	const rom char cmd[MAX_COMMAND_SIZE];
+	const rom char* cmd; //[MAX_COMMAND_SIZE];
 	const PTR_CLI_FUNCTPTR handler;
+	const rom char* help_short;
+	const rom char* help_long;
 };
 
 void command_help(char* cmd);
@@ -27,17 +30,22 @@ void command_eeprom(char* cmd);
 void command_reset(char* cmd);
 void command_debug(char* cmd);
 void command_flash(char* cmd);
+void command_reboot(char* cmd);
 
 const rom struct command commands[] = {
-	{"help", command_help},
-	{"ping", command_ping},
-	{"adc", command_adc},
-	{"prom", command_eeprom},
-	{"reset", command_reset},
-	{"flash", command_flash},
+	{"help", command_help, NULL, NULL},
+	{"ping", command_ping, NULL, NULL},
+	{"adc", command_adc, NULL, NULL},
+	{"prom", command_eeprom, NULL, NULL},
+	{"reset", command_reset, NULL, NULL},
+	{"reboot", command_reboot, "Reboot the PIC.", NULL},
+	{"flash", command_flash, "Reboot the PIC in firmware flashing mode.", NULL},
+	{ NULL, NULL, NULL },
 };
 
 void usb_pic_uart_init(void) {
+	// Output the prompt
+	recv_buffer_i = 0;
 }
 
 bool startswith(const rom char* a, const char* b) {
@@ -75,11 +83,14 @@ void usb_pic_uart_service(void) {
 					}
 				}
 				if (!c) {
-					cdc_put_cstr(USB_PIC_PORT, "Unknown command. Try 'help'.\r\n");
-				} else {
-					cdc_putc(USB_PIC_PORT, '\r');
-					cdc_putc(USB_PIC_PORT, '\n');
+					cdc_put_cstr(USB_PIC_PORT, "Unknown command '");
+					for(i = 0; i < recv_buffer_i; i++) {
+						cdc_putc(USB_PIC_PORT, recv_buffer[i]);
+					}
+					cdc_put_cstr(USB_PIC_PORT, "'. Try 'help'.");
 				}
+				cdc_putc(USB_PIC_PORT, '\r');
+				cdc_putc(USB_PIC_PORT, '\n');
 			}
 
 			// Output the prompt
@@ -105,8 +116,9 @@ void usb_pic_uart_service(void) {
 				i = true;
 			if (c == ' ')
 				i = true;
-			if (!i)
+			if (!i) {
 				continue;
+			}
 
 			cdc_putc(USB_PIC_PORT, c);		// Remote Echo
 			recv_buffer[recv_buffer_i++] = c;
@@ -119,6 +131,27 @@ void usb_pic_uart_service(void) {
 }
 
 void command_help(char* cmd) {
+	const rom struct command *pcmd = &(commands[0]);
+	while(pcmd->handler != NULL) {
+		int i = 0;
+		while(pcmd->cmd[i] != '\0') {
+			cdc_putc(USB_PIC_PORT, pcmd->cmd[i]);
+			i++;
+		}
+		for(; i < 10; i++) {
+			cdc_putc(USB_PIC_PORT, ' ');
+		}
+		cdc_putc(USB_PIC_PORT, '-');
+		cdc_putc(USB_PIC_PORT, ' ');
+		if (pcmd->help_short) {
+			cdc_put_cstr(USB_PIC_PORT, pcmd->help_short);
+		} else {
+			cdc_put_cstr(USB_PIC_PORT, "No help");
+		}
+		cdc_putc(USB_PIC_PORT, '\r');
+		cdc_putc(USB_PIC_PORT, '\n');
+		pcmd++;
+	}
 }
 
 void command_ping(char* cmd) {
@@ -135,7 +168,7 @@ void command_reset(char* cmd) {
 	usb_hard_reset();
 }
 
-void _command_flash_countdown(uint8_t c) {
+void _command_countdown(uint8_t c) {
 	uint16_t i, j;
 	cdc_putc(USB_PIC_PORT, '0'+c);
 	cdc_flush_in_now(USB_PIC_PORT);
@@ -150,13 +183,26 @@ void _command_flash_countdown(uint8_t c) {
 	}
 }
 
+void command_reboot(char* cmd) {
+	cdc_put_cstr(USB_PIC_PORT, "Rebooting the PIC\r\n");
+	_command_countdown(3);
+	_command_countdown(2);
+	_command_countdown(1);
+	INTCONbits.GIE=0;  // Disable interrupts
+	Reset();
+	// Should never get here...
+	cdc_put_cstr(USB_PIC_PORT, "WTF? Jump failed...\r\n");
+}
+
 /* Jump to the USB boot loader */
 void command_flash(char* cmd) {
-	cdc_put_cstr(USB_PIC_PORT, "Rebooting the PIC\r\n");
-	cdc_put_cstr(USB_PIC_PORT, "Hold flash button now...\r\n");
-	_command_flash_countdown(3);
-	_command_flash_countdown(2);
-	_command_flash_countdown(1);
-	Reset();
+	cdc_put_cstr(USB_PIC_PORT, "Jumping to the firmware bootloader\r\n");
+	_command_countdown(3);
+	_command_countdown(2);
+	_command_countdown(1);
+	INTCONbits.GIE=0;  // Disable interrupts
+	_asm goto 0x001C _endasm
+	//_asm goto 0x0000 _endasm
+	// Should never get here...
 	cdc_put_cstr(USB_PIC_PORT, "WTF? Jump failed...\r\n");
 }
