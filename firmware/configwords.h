@@ -100,56 +100,60 @@
 
 #elif defined(__18F14K50)
 
-// configword 0x300000
+// configword 0x300000 - CONFIG1L
         #pragma config CPUDIV = NOCLKDIV
         #pragma config USBDIV = OFF
+
+// configword 0x300001 - CONFIG1H
         #pragma config FOSC = HS
         #pragma config PLLEN = ON
         #pragma config PCLKEN = ON
         #pragma config FCMEN = OFF
         #pragma config IESO = OFF
 
-// configword 0x300002
-        #pragma config PWRTEN = ON
-        #pragma config BOREN = OFF
-        #pragma config BORV = 30
+// configword 0x300002 - CONFIG2L
+//        #pragma config PWRTEN = OFF
+//        #pragma config BOREN = OFF
+//        #pragma config BORV = 30
 
-// configword 0x300003
+// configword 0x300003 - CONFIG2H
         #pragma config WDTEN = OFF
         #pragma config WDTPS = 32768
 
-// configword 0x300005
+// configword 0x300005 - CONFIG3H
         #pragma config HFOFST = OFF
-        #pragma config MCLRE = ON   
+        #pragma config MCLRE = OFF
 
-// configword 0x300006
+// configword 0x300006 - CONFIG4L
+        #pragma config DEBUG = ON // BKBUG
         #pragma config STVREN = ON
         #pragma config LVP = OFF
         #pragma config XINST = OFF
 
-// configword 0x300008
+// configword 0x300008 - CONFIG5L
         #pragma config CP0 = OFF 
         #pragma config CP1 = OFF 
 
-// configword 0x300009
+// configword 0x300009 - CONFIG5H
         #pragma config CPB = OFF 
         #pragma config CPD = OFF
 
-// configword 0x30000a 
+// configword 0x30000a - CONFIG6L
         #pragma config WRT0 = OFF 
         #pragma config WRT1 = OFF
 
-// configword 0x30000b 
+// configword 0x30000b - CONFIG6H
         #pragma config WRTB = OFF 
         #pragma config WRTC = OFF  
         #pragma config WRTD = OFF
 
-// configword 0x30000c 
+// configword 0x30000c - CONFIG7L
         #pragma config EBTR0 = OFF 
         #pragma config EBTR1 = OFF 
 
-// configword 0x30000d
-        #pragma config EBTRB = OFF      
+// configword 0x30000d - CONFIG7H
+        #pragma config EBTRB = OFF 
+                
 #elif defined(__18F27J53)
 	#pragma config WDTEN = OFF          //WDT disabled (enabled by SWDTEN bit)
 	#pragma config PLLDIV = 1           //Divide by 1 (4 MHz oscillator input)

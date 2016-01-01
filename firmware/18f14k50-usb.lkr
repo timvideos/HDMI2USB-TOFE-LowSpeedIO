@@ -10,20 +10,23 @@ LIBPATH .
 
 #IFDEF _CRUNTIME
   #IFDEF _EXTENDEDMODE
-    FILES c018i_e.o
+//    FILES c018i_e.o
     FILES clib_e.lib
     FILES p18f14k50_e.lib
 
   #ELSE
-    FILES c018i.o
+//    FILES c018i.o
     FILES clib.lib
     FILES p18f14k50.lib
   #FI
 
 #FI
 
-CODEPAGE   NAME=bootloader START=0x0               END=0xFFF        PROTECTED
-CODEPAGE   NAME=boot_vec   START=0x1000            END=0x101F       PROTECTED
+//CODEPAGE   NAME=bootloader START=0x0               END=0xFFF        PROTECTED
+CODEPAGE   NAME=vectors    START=0x0            END=0x29           PROTECTED
+CODEPAGE   NAME=bootloader   START=0x2A           END=0xFFF		   PROTECTED
+CODEPAGE   NAME=_entry_scn   START=0x1000            END=0x1007       PROTECTED
+CODEPAGE   NAME=boot_vec   START=0x1008            END=0x101F       PROTECTED
 #IFDEF _DEBUGCODESTART
   CODEPAGE   NAME=page       START=0x1020            END=_CODEEND
   CODEPAGE   NAME=debug      START=_DEBUGCODESTART   END=_CEND        PROTECTED

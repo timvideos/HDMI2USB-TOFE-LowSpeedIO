@@ -89,35 +89,38 @@ void InterruptHandlerHigh(void) { //Also legacy mode interrupt.
 // These statements remap the vector to our function
 // When the interrupt fires the PIC checks here for directions
 #pragma code REMAPPED_HIGH_INTERRUPT_VECTOR = REMAPPED_HIGH_INTERRUPT_VECTOR_ADDRESS
-
 void Remapped_High_ISR(void) {
 	_asm goto InterruptHandlerHigh _endasm
 }
 
 #pragma code REMAPPED_LOW_INTERRUPT_VECTOR = REMAPPED_LOW_INTERRUPT_VECTOR_ADDRESS
-
 void Remapped_Low_ISR(void) {
 	_asm goto InterruptHandlerLow _endasm
 }
 
 //relocate the reset vector
-extern void _startup(void);
-#pragma code REMAPPED_RESET_VECTOR = REMAPPED_RESET_VECTOR_ADDRESS
+//extern void _startup(void);
+//#pragma code REMAPPED_RESET_VECTOR = REMAPPED_RESET_VECTOR_ADDRESS
+//void Remapped_reset(void) {
+//	_asm goto _startup _endasm
+//}
 
-void _reset(void) {
-	_asm goto _startup _endasm
-}
 //set the initial vectors so this works without the bootloader too.
 #pragma code HIGH_INTERRUPT_VECTOR = 0x08
-
 void High_ISR(void) {
 	_asm goto REMAPPED_HIGH_INTERRUPT_VECTOR_ADDRESS _endasm
 }
-#pragma code LOW_INTERRUPT_VECTOR = 0x18
 
+#pragma code LOW_INTERRUPT_VECTOR = 0x18
 void Low_ISR(void) {
 	_asm goto REMAPPED_LOW_INTERRUPT_VECTOR_ADDRESS _endasm
 }
+
+//#pragma code RESET_VECTOR = 0x0
+//void _reset(void) {
+//	_asm goto 0xf7c _endasm
+//}
+
 #endif // defined(USB_INTERRUPTS)
 
 #pragma code
