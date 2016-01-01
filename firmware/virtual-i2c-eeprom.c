@@ -10,7 +10,7 @@ Addresses
 
 "Reading" will return the data pointed by the current address and increment the address value by one.
 
-This file makes the PIC appear as an 24 series EEPROM on it's I2C interface. 
+This file makes the PIC appear as an 24 series EEPROM on it's I2C interface.
  */
 
 #include <p18f14k50.h>
@@ -21,33 +21,13 @@ This file makes the PIC appear as an 24 series EEPROM on it's I2C interface.
 #include "descriptors.h"
 #include "dp_usb/usb_stack.h"
 
-/**
-The virtual EEPROM contents is mapped the following;
-
-+--------+--------+--------------+-----+------------------------------+
-| Start  | End    | Size (bytes) | R/W | Usage                        |
-+--------+--------+--------------+-----+------------------------------+
-| 0x0000 | 0x03ff | 1024         | RO  | TOFE ID area                 |
-| 0x0400 | 0x04ff |  256         | RW  | PIC's internal EEPROM        |
-| 0x0600 | 0x06ff |  256         | RO  | Autopopulated ADC values     |
-| 0x0700 | 0x070f |   16         | RW  | USB Serial Number            |
-+--------+--------+--------------+-----+------------------------------+
-*/
-
-#define VEEPROM_FLASH_START	0x0000
-#define VEEPROM_FLASH_END	0x03ff
-#define VEEPROM_EEPROM_START	0x0400
-#define VEEPROM_EEPROM_END	0x04ff
-#define VEEPROM_ADC_START	0x0600
-#define VEEPROM_ADC_END		0x06ff
-#define VEEPROM_USB_START	0x0700
-#define VEEPROM_USB_END		0x070f
 
 // Virtual EEPROM get functions
 uint8_t _veeprom_get_flash(uint16_t addr);
 uint8_t _veeprom_get_eeprom(uint8_t addr);
 uint8_t _veeprom_get_adc(uint8_t addr);
 uint8_t _veeprom_get_usb(uint8_t addr);
+uint8_t _veeprom_get_led(uint8_t addr);
 uint8_t veeprom_get(uint16_t addr) {
 	// Internal Flash Area
 	if (addr >= VEEPROM_FLASH_START && addr <= VEEPROM_FLASH_END) {
@@ -65,6 +45,10 @@ uint8_t veeprom_get(uint16_t addr) {
 	if (addr >= VEEPROM_USB_START && addr <= VEEPROM_USB_END) {
 		return _veeprom_get_usb((uint8_t)(addr&0x0f));
 	}
+	// LED Area
+	if (addr >= VEEPROM_LED_START && addr <= VEEPROM_LED_END) {
+		return _veeprom_get_led((uint8_t)(addr&0x0f));
+	}
 	return 0xff;
 }
 
@@ -73,6 +57,7 @@ void _veeprom_set_flash(uint16_t addr, uint8_t data);
 void _veeprom_set_eeprom(uint8_t addr, uint8_t data);
 void _veeprom_set_adc(uint8_t addr, uint8_t data);
 void _veeprom_set_usb(uint8_t addr, uint8_t data);
+void _veeprom_set_led(uint8_t addr, uint8_t data);
 void veeprom_set(uint16_t addr, uint8_t data) {
 	// Internal Flash Area
 	if (addr >= VEEPROM_FLASH_START && addr <= VEEPROM_FLASH_END) {
@@ -89,6 +74,10 @@ void veeprom_set(uint16_t addr, uint8_t data) {
 	// USB Area
 	if (addr >= VEEPROM_USB_START && addr <= VEEPROM_USB_END) {
 		_veeprom_set_usb((uint8_t)(addr&0x0f), data);
+	}
+	// Led Area
+	if (addr >= VEEPROM_LED_START && addr <= VEEPROM_LED_END) {
+		_veeprom_set_led((uint8_t)(addr&0x0f), data);
 	}
 }
 
@@ -114,7 +103,7 @@ uint8_t _veeprom_get_eeprom(uint8_t addr) {
 	return EEDATA;
 }
 void _veeprom_set_eeprom(uint8_t addr, uint8_t data) {
-	uint8_t oldGIEH;	
+	uint8_t oldGIEH;
 	EEADR = addr;
 	EECON1 = 0;
 	EEDATA = data;
@@ -129,7 +118,7 @@ void _veeprom_set_eeprom(uint8_t addr, uint8_t data) {
 	EECON1bits.WR = 1;
 	INTCONbits.GIEH = oldGIEH;
 	while(EECON1bits.WR);
-	EECON1bits.WREN = 0; 
+	EECON1bits.WREN = 0;
 }
 
 // PIC ADC access
@@ -171,7 +160,7 @@ uint8_t _veeprom_get_adc(uint8_t addr) {
 		return (uint8_t)(_adc[channel].data.h);
 	default:
 		return 0xfe;
-		
+
 	}
 }
 void _veeprom_set_adc(uint8_t addr, uint8_t data) {
@@ -209,6 +198,38 @@ void _veeprom_set_usb(uint8_t addr, uint8_t data) {
 	}
 }
 
+// PIC LED access
+uint8_t _veeprom_get_led(uint8_t addr) {
+	if (addr > 2)
+		return 0xf1;
+
+	switch(addr) {
+	case 0:
+		// D5
+		return PORTCbits.RC5;
+	case 1:
+		// D6
+		return PORTCbits.RC4;
+	default:
+		return 0xf2;
+
+	}
+}
+void _veeprom_set_led(uint8_t addr, uint8_t data) {
+	uint8_t channel = (addr >> 4) & 0xf;
+	uint8_t object = addr & 0xf;
+	if (channel > ADC_CHANNELS)
+		return;
+
+	switch(object) {
+	case 0:
+		// D5
+		PORTCbits.RC5 = data;
+	case 1:
+		// D6
+		PORTCbits.RC4 = data;
+	}
+}
 
 
 
@@ -316,6 +337,10 @@ void veeprom_i2c_init(void) {
 	_veeprom_i2c_addr_current = 0;
 	_veeprom_i2c_addr_shadow = 0;
 
+	// Set the LED ports as output
+	TRISCbits.RC5 = 0; // LED D5
+	TRISCbits.RC4 = 0; // LED D6
+
 	// Set SCL and SDA as inputs
 	TRISBbits.RB6 = 1;	// SCL
 	TRISBbits.RB4 = 1;	// SDA
@@ -361,7 +386,7 @@ void veeprom_i2c_init(void) {
 
 	// Enable interrupt priority levels
 	//RCONbits.IPEN = 1;
-	// Make the MSSP run on low priority interrupt as USB is running on the 
+	// Make the MSSP run on low priority interrupt as USB is running on the
 	// high priority one.
 	//IPR1bits.SSPIP = 0;
 
@@ -399,7 +424,7 @@ void veeprom_i2c_interrupt(void) {
 	} else {
 		debug_data[2] = '.';
 	}
-   
+
 	if (SSPSTATbits.S) {
 		debug_data[3] = 'S';
 	} else {
@@ -427,7 +452,7 @@ void veeprom_i2c_interrupt(void) {
 	} else {
 		_veeprom_i2c_data_count++;
 	}
-	
+
 	if (SSPSTATbits.BF == 1) {
 		_veeprom_i2c_data_value = SSPBUF;
 	}
@@ -435,7 +460,7 @@ void veeprom_i2c_interrupt(void) {
 	debug_data[7] = '0' + _veeprom_i2c_data_count;
 	debug_data[8] = '0' + _veeprom_i2c_addr_current;
 	//debug_printf(DEBUG_INFO, DEBUG_EEPROM, "%s", debug);
-	
+
 	if (SSPSTATbits.R_W) {
 		if (!SSPSTATbits.P) {
 			_veeprom_i2c_data_value = veeprom_i2c_read(_veeprom_i2c_data_count);
@@ -443,7 +468,7 @@ void veeprom_i2c_interrupt(void) {
 	} else {
 		veeprom_i2c_write(_veeprom_i2c_data_count, _veeprom_i2c_data_value);
 	}
-	
+
 	if (!SSPSTATbits.P && SSPSTATbits.BF == 0) {
 		SSPBUF = _veeprom_i2c_data_value;
 	}

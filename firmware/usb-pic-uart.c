@@ -399,6 +399,43 @@ void command_dump(char* args) {
 
 void command_led(char* args) {
 //	 "led (d5|d6) (on|off|toggle) - Turn on/off the LED.\r\n"
+	if (args == NULL) {
+	} else if (*args == 'd' || *args == 'D') {
+		uint16_t addr = 0;
+		if (*(args+1) == '5') {
+			addr = VEEPROM_LED_START;
+			cdc_put_cstr(USB_PIC_PORT, "LED D5 ");
+		} else if (*(args+1) == '6') {
+			addr = VEEPROM_LED_START+1;
+			cdc_put_cstr(USB_PIC_PORT, "LED D6 ");
+		}
+		if (addr > 0) {
+			args = next_token(args);
+			if (args == NULL) {
+				if (veeprom_get(addr)) {
+					cdc_put_cstr(USB_PIC_PORT, "is on.");
+				} else {
+					cdc_put_cstr(USB_PIC_PORT, "is off.");
+				}
+			} else if (startswith("on", args)) {
+				veeprom_set(addr, 1);
+				cdc_put_cstr(USB_PIC_PORT, "turned on.");
+			} else if (startswith("off", args)) {
+				veeprom_set(addr, 0);
+				cdc_put_cstr(USB_PIC_PORT, "turned off.");
+			} else if (startswith("toggle", args)) {
+				if (veeprom_get(addr)) {
+					veeprom_set(addr, 0);
+					cdc_put_cstr(USB_PIC_PORT, "turned off.");
+				} else {
+					veeprom_set(addr, 1);
+					cdc_put_cstr(USB_PIC_PORT, "turned on.");
+				}
+			}
+			return;
+		}
+	}
+	cdc_put_cstr(USB_PIC_PORT, "Unknown command.");
 }
 
 void command_ping(char* args) {
@@ -410,7 +447,6 @@ void command_prom(char* args) {
 //	 "prom r[ead] address [len]  - Read [len] contents of the EEPROM starting at address.\r\n"
 //	 "prom w[rite] address value - Write the value to EEPROM at address.\r\n"
 	if (args == NULL) {
-		cdc_put_cstr(USB_PIC_PORT, "Unknown command.");
 	} else if (*args == 'r' || *args == 'w') {
 		bool read = (*args == 'r');
 		int16_t addr = -1;
@@ -442,7 +478,9 @@ void command_prom(char* args) {
 		} else {
 			veeprom_set(addr, (uint8_t)(data & 0xff));
 		}
+		return;
 	}
+	cdc_put_cstr(USB_PIC_PORT, "Unknown command.");
 }
 
 bool _reboot_countdown(uint8_t c) {
