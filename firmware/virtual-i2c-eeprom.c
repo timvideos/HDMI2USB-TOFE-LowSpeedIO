@@ -136,38 +136,22 @@ void _veeprom_set_eeprom(uint8_t addr, uint8_t data) {
 /*
 ADC Region Map
 
-+--------+--------+--------------+-----+------------------------------+
-| Start  | End    | Size (bytes) | R/W | Usage                        |
-+--------+--------+--------------+-----+------------------------------+
-| 0x0600 | 0x0600 | 1            | RO  | Channel 0 - Updated counter. Increase every time the ADC value for channel 0 is updated.
-| 0x0601 | 0x0601 | 1            | RO  | Reserved.
-| 0x0602 | 0x0602 | 1            | RO  | Channel 0 - Low byte ADC value.
-| 0x0603 | 0x0603 | 1            | RO  | Channel 0 - High byte ADC value.
++--------+--------+--------------+-----+-------------------------------------------------+
+| Start  | End    | Size (bytes) | R/W | Usage                                           |
++--------+--------+--------------+-----+-------------------------------------------------+
+| 0x06X0 | 0x06X0 | 1            | RW  | Channel X - Enable. 0 == Disabled, 1 == Enabled |
+| 0x06X1 | 0x06X1 | 1            | RO  | Channel X - Update counter. Increases every time the ADC value is updated. |
+| 0x06X2 | 0x06X2 | 1            | RO  | Channel X - Low byte ADC value.                 |
+| 0x06X3 | 0x06X3 | 1            | RO  | Channel X - High byte ADC value.                |
++--------+--------+--------------+-----+-------------------------------------------------+
 
-| 0x0610 | 0x0610 | 1            | RO  | Channel 1 - Updated counter. Increase every time the ADC value for channel 0 is updated.
-| 0x0611 | 0x0611 | 1            | RO  | Reserved.
-| 0x0612 | 0x0612 | 1            | RO  | Channel 1 - Low byte ADC value.
-| 0x0613 | 0x0613 | 1            | RO  | Channel 1 - High byte ADC value.
+ 0x06XY
 
-| 0x0620 | 0x0620 | 1            | RO  | Channel 2 - Updated counter. Increase every time the ADC value for channel 0 is updated.
-| 0x0621 | 0x0621 | 1            | RO  | Reserved.
-| 0x0622 | 0x0622 | 1            | RO  | Channel 2 - Low byte ADC value.
-| 0x0623 | 0x0623 | 1            | RO  | Channel 2 - High byte ADC value.
-
-| 0x0630 | 0x0630 | 1            | RO  | Channel 3 - Updated counter. Increase every time the ADC value for channel 0 is updated.
-| 0x0631 | 0x0631 | 1            | RO  | Reserved.
-| 0x0632 | 0x0632 | 1            | RO  | Channel 3 - Low byte ADC value.
-| 0x0633 | 0x0633 | 1            | RO  | Channel 3 - High byte ADC value.
-
-| 0x0640 | 0x0640 | 1            | RO  | Channel 4 - Updated counter. Increase every time the ADC value for channel 0 is updated.
-| 0x0641 | 0x0641 | 1            | RO  | Reserved.
-| 0x0642 | 0x0642 | 1            | RO  | Channel 4 - Low byte ADC value.
-| 0x0643 | 0x0643 | 1            | RO  | Channel 4 - High byte ADC value.
-
-| 0x0650 | 0x0650 | 1            | RO  | Channel 5 - Updated counter. Increase every time the ADC value for channel 0 is updated.
-| 0x0651 | 0x0651 | 1            | RO  | Reserved.
-| 0x0652 | 0x0652 | 1            | RO  | Channel 5 - Low byte ADC value.
-| 0x0653 | 0x0653 | 1            | RO  | Channel 5 - High byte ADC value.
+ X == Channel
+ Y == 0 - Enabled byte
+ Y == 1 - Update counter
+ Y == 2 - Low byte of ADC value
+ Y == 3 - High byte of ADC value
 */
 
 uint8_t _veeprom_get_adc(uint8_t addr) {
