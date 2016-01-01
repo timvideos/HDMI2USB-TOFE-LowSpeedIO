@@ -39,32 +39,21 @@ void main(void) {
 	usb_service_init_after_configured = false;
 	usb_start(); //start the USB peripheral
 
-#if defined USB_INTERRUPTS
-	EnableUsbPerifInterrupts(USB_TRN + USB_SOF + USB_UERR + USB_URST);
-
-	INTCONbits.PEIE = 1;
-	INTCONbits.GIE = 1;
-
-	EnableUsbGlobalInterrupt();
-#endif
-
 	do {
+		if (usb_device_state < CONFIGURED_STATE) {
+			usb_service_init_after_configured = false;
+			continue;
+		}
+
 #ifndef USB_INTERRUPTS
 		usb_handler();
 #endif
 		adc_service();
 		veeprom_i2c_service();
 
-		if (usb_device_state < CONFIGURED_STATE) {
-			usb_service_init_after_configured = false;
-			continue;
-		}
-
 		if (!usb_service_init_after_configured) {
 			usb_fpga_uart_init();
 			usb_pic_uart_init();
-
-			usb_register_sof_handler(cdc_flush_on_timeout);
 			usb_service_init_after_configured = true;
 		}
 		usb_fpga_uart_service();

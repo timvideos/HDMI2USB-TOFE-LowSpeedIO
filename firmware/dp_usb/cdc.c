@@ -68,6 +68,7 @@ BYTE cdcdata_Lock[2] = {0, 0};
 BDentry *cdcdata_Outbdp[2], *cdcdata_Inbdp[2];
 volatile BYTE cdcdata_TRFState[2]; // JTR don't see that it is really volatile in current context may be in future.
 
+#pragma code
 BYTE CDCFunctionError;
 
 void cdc_init_port(BYTE port) {
@@ -86,9 +87,6 @@ void cdc_init() {
     // is not transmitting junk between a RESET and the device being enumerated. Hardware CTS/RTS
     // would also be setup here if being used.
 
-    cdc_init_port(0);
-    cdc_init_port(1);
-    usb_register_class_setup_handler(cdc_setup);
 }
 
 void user_configured_init(void) {
@@ -128,9 +126,13 @@ void user_configured_init(void) {
     // TODO: Implement Ping-Pong buffering setup.
 #error "PP Mode not implemented yet"
 #endif
-    usb_register_class_setup_handler(cdc_setup);
-
+    cdc_init_port(0);
     cdcdata_TRFState[0] = 0;
+    cdcdata_LineStateUpdated[0] = 0;
+    cdcdata_TimeoutCount[0] = 0;
+    cdcdata_ZLPPending[0] = 0;
+    cdcdata_Lock[0] = 0;
+
     cdcdata_Outbdp[0] = &usb_bdt[USB_CALC_BD(2, USB_DIR_OUT, USB_PP_EVEN)];
     cdcdata_Inbdp[0] = &usb_bdt[USB_CALC_BD(2, USB_DIR_IN, USB_PP_EVEN)];
 
@@ -148,7 +150,13 @@ void user_configured_init(void) {
     cdcdata_Outbdp[0]->BDADDR = &cdcdata0_OutBufferA[0];
     cdcdata_Outbdp[0]->BDSTAT = UOWN + DTSEN;
 
+    cdc_init_port(1);
     cdcdata_TRFState[1] = 0;
+    cdcdata_LineStateUpdated[1] = 0;
+    cdcdata_TimeoutCount[1] = 0;
+    cdcdata_ZLPPending[1] = 0;
+    cdcdata_Lock[1] = 0;
+
     cdcdata_Outbdp[1] = &usb_bdt[USB_CALC_BD(4, USB_DIR_OUT, USB_PP_EVEN)];
     cdcdata_Inbdp[1] = &usb_bdt[USB_CALC_BD(4, USB_DIR_IN, USB_PP_EVEN)];
 
@@ -165,6 +173,9 @@ void user_configured_init(void) {
     cdcdata_Outbdp[1]->BDCNT = CDC_BUFFER_SIZE;
     cdcdata_Outbdp[1]->BDADDR = &cdcdata1_OutBufferA[0];
     cdcdata_Outbdp[1]->BDSTAT = UOWN + DTSEN;
+
+    usb_register_class_setup_handler(cdc_setup);
+    usb_register_sof_handler(cdc_flush_on_timeout);
 }
 
 void cdc_setup(void) {
@@ -331,10 +342,13 @@ BYTE cdc_getda(BYTE port) {
     return cdcdata_OutLen[port];
 }//end getCDC_Out_ArmNext
 
+BYTE cdc_putda(BYTE port, BYTE count);
 BYTE cdc_putda(BYTE port, BYTE count) {
+    // When calling this function, cdcdata_Lock[port] == 1;
+    if(cdcdata_Lock[port] != 1)
+        return 0;
 
-    while ((cdcdata_Inbdp[0]->BDSTAT & UOWN));
-
+    cdc_wait_in_ready(port);
     if ((cdcdata_IsInBufferA[port] & 1)) {
         switch(port) {
         case 0:
@@ -368,14 +382,11 @@ BYTE cdc_putda(BYTE port, BYTE count) {
     return 0; //CDCFunctionError;
 }
 
-void cdc_send_zlp(BYTE port) {
-    cdc_putda(port, 0);
-}
-
 /******************************************************************************/
 void cdc_flush_in_now(BYTE port) {
+    cdcdata_Lock[port] = 1;
+    // {
     if (cdcdata_InLen[port] > 0) {
-        while (!cdc_in_ready(port));
         cdc_putda(port, cdcdata_InLen[port]);
         if (cdcdata_InLen[port] == CDC_BUFFER_SIZE) {
             cdcdata_ZLPPending[port] = 1;
@@ -384,28 +395,21 @@ void cdc_flush_in_now(BYTE port) {
         }
         cdcdata_InLen[port] = 0;
         cdcdata_TimeoutCount[port] = 0;
+    } else if (cdcdata_ZLPPending[port]) {
+        cdc_putda(port, 0);
+        cdcdata_ZLPPending[port] = 0;
+        cdcdata_TimeoutCount[port] = 0;
     }
+    // }
+    cdcdata_Lock[port] = 0;
     return;
 }
 
 /******************************************************************************/
 void cdc_flush_on_timeout_port(BYTE port) {
-    if (cdcdata_TimeoutCount[port] >= CDC_FLUSH_MS) { // For timeout value see: cdc_config.h -> [hardware] -> CDC_FLUSH_MS
-        if (cdcdata_InLen[port] > 0) {
-            if ((cdcdata_Lock[port] == 0) && cdc_in_ready(port)) {
-                cdc_putda(port, cdcdata_InLen[port]);
-                if (cdcdata_InLen[port] == CDC_BUFFER_SIZE) {
-                    cdcdata_ZLPPending[port] = 1;
-                } else {
-                    cdcdata_ZLPPending[port] = 0;
-                }
-                cdcdata_InLen[port] = 0;
-                cdcdata_TimeoutCount[port] = 0;
-            }
-        } else if (cdcdata_ZLPPending[port]) {
-            cdc_putda(port, 0);
-            cdcdata_ZLPPending[port] = 0;
-            cdcdata_TimeoutCount[port] = 0;
+    if (cdcdata_TimeoutCount[port] >= CDC_FLUSH_MS) {
+        if(!cdcdata_Lock[port]) {
+            cdc_flush_in_now(port);
         }
     } else {
         cdcdata_TimeoutCount[port]++;
@@ -419,19 +423,21 @@ void cdc_flush_on_timeout(void) {
 
 /******************************************************************************/
 void cdc_putc(BYTE port, BYTE c) {
-     cdcdata_Lock[port] = 1; // Stops cdc_flush_on_timeout() from sending per chance it is on interrupts.
-     *(cdcdata_InPtr[port]) = c;
-     cdcdata_InPtr[port]++;
-     cdcdata_InLen[port]++;
-     cdcdata_ZLPPending[port] = 0;
-     if (cdcdata_InLen[port] == CDC_BUFFER_SIZE) {
-         cdc_putda(port, cdcdata_InLen[port]); // This will stall tranfers if both buffers are full then return when a buffer is available.
-         cdcdata_InLen[port] = 0;
-         cdcdata_ZLPPending[port] = 1; // timeout handled in the SOF handler below.
-     }
-     cdcdata_Lock[port] = 0;
-     cdcdata_TimeoutCount[port] = 0; //setup timer to throw data if the buffer doesn't fill
-     return;
+    cdcdata_Lock[port] = 1;
+    // {
+    *(cdcdata_InPtr[port]) = c;
+    cdcdata_InPtr[port]++;
+    cdcdata_InLen[port]++;
+    cdcdata_ZLPPending[port] = 0;
+    if (cdcdata_InLen[port] == CDC_BUFFER_SIZE) {
+        cdc_putda(port, cdcdata_InLen[port]);
+        cdcdata_InLen[port] = 0;
+        cdcdata_ZLPPending[port] = 1;
+    }
+    cdcdata_TimeoutCount[port] = 0; //setup timer to throw data if the buffer doesn't fill
+    // }
+    cdcdata_Lock[port] = 0;
+    return;
 }
 
 void cdc_put_cstr(BYTE port, const rom char* msg) {

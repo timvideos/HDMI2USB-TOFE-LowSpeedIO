@@ -91,11 +91,6 @@ size_t usb_serial_len;
 volatile BYTE usbrequesterrorflag;
 
 void usb_setup(void) {
-    sof_handler = NULL;
-    class_setup_handler = NULL;
-    vendor_setup_handler = NULL;
-    usb_unset_in_handler(0);
-    usb_unset_out_handler(0);
     ClearUSBtoDefault();
     ConfigureUsbHardware();
     EnablePacketTransfer();
@@ -120,14 +115,30 @@ void usb_start(void) {
     usb_device_state = ATTACHED_STATE;
     while (SingleEndedZeroIsSet()); // Busywait for initial power-up
     usb_device_state = DEFAULT_STATE; //JTR2
+
+    // Enable interrupts
+#if defined USB_INTERRUPTS
+    EnableUsbPerifInterrupts(USB_TRN + USB_SOF + USB_UERR + USB_URST);
+
+    INTCONbits.PEIE = 1;
+    INTCONbits.GIE = 1;
+
+    EnableUsbGlobalInterrupt();
+#endif
 }
 
 void usb_hard_reset(void) {
     BYTE i;
+
+    // Disable interrupts
+    INTCONbits.GIE = 0;
+    // Disable USB hardware
     UCONbits.USBEN = 0;
+    // Wait for a bit
     for(i = 0; i < 255; i++) {
         _asm nop _endasm
     }
+    // Bring things up again
     usb_setup();
     usb_start();
 }
@@ -149,11 +160,14 @@ void usb_handle_reset(void) {
     EnablePacketTransfer();
 }
 
+
 void ClearUSBtoDefault(void) {
     int i;
     sof_handler = NULL;
-    class_setup_handler = NULL;
-    vendor_setup_handler = NULL;
+    //class_setup_handler = NULL;
+    //vendor_setup_handler = NULL;
+    usb_unset_in_handler(0);
+    usb_unset_out_handler(0);
 
     SetUsbAddress(0); // After reset we don't have an address
     ResetPPbuffers();
@@ -187,6 +201,7 @@ void ClearUSBtoDefault(void) {
     usb_device_state = DETACHED_STATE; // JTR added flag byte for enumeration state
     usb_current_cfg = 0; // JTR formally usb_configured
     usb_addr_pending = 0x00;
+    trn_status = 0x00;
 
 #if USB_PP_BUF_MODE == NO_PINGPONG
     usb_bdt[USB_CALC_BD(0, USB_DIR_OUT, USB_PP_EVEN)].BDCNT = USB_EP0_BUFFER_SIZE; // JTR endpoints[0].buffer_size; same thing done more obviously
