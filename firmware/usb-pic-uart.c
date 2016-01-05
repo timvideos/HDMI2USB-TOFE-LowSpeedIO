@@ -11,6 +11,7 @@
 #include "dp_usb/usb_stack.h"
 #include "prj_usb_config.h"
 #include "virtual-i2c-eeprom.h"
+#include "version.h"
 
 #define MAX_COMMAND_SIZE 16
 
@@ -37,6 +38,7 @@ void command_prom(char* args);
 void command_reboot(char* args);
 void command_usb_reset(char* args);
 void command_usb_spam(char* args);
+void command_version(char* args);
 
 const rom struct command commands[] = {
 	{"help", command_help, "Get help on commands.",
@@ -60,12 +62,12 @@ const rom struct command commands[] = {
 #ifdef DEBUG_USB
 	// Commands for debugging the USB stack.
 	{"usb_reset", command_usb_reset, NULL,
-         "Reset the USB stack."
 	},
 	{"usb_spam", command_usb_spam, NULL,
-         "Just spam ever increasing numbers."
 	},
 #endif
+	{"version", command_version, "Print firmware version.",
+	},
 	{ NULL, NULL, NULL },
 };
 
@@ -575,3 +577,10 @@ void command_usb_reset(char* args) {
 	usb_hard_reset();
 }
 #endif
+
+void command_version(char* args) {
+	cdc_put_cstr(USB_PIC_PORT, GIT_VERSION_HUMAN);
+	cdc_put_cstr(USB_PIC_PORT, "\r\n");
+	cdc_put_cstr(USB_PIC_PORT, GIT_VERSION_HASH);
+	cdc_put_cstr(USB_PIC_PORT, "\r\n");
+}
