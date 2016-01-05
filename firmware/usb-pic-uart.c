@@ -24,7 +24,6 @@ struct command {
 	const rom char* name; //[MAX_COMMAND_SIZE];
 	const PTR_CLI_FUNCTPTR handler;
 	const rom char* help_short;
-	const rom char* help_long;
 };
 
 void command_help(char* args);
@@ -92,21 +91,30 @@ bool startswith(const rom char* a, const char* b) {
 	return true;
 }
 
-void _cdc_put_hex_nibble(uint8_t i) {
-	i &= i;
-	if (i > 9) {
-		cdc_putc(USB_PIC_PORT, 'A'+(i-10));
-	} else if (i <= 16) {
-		cdc_putc(USB_PIC_PORT, '0'+i);
-	} else {
-		cdc_putc(USB_PIC_PORT, '?');
-	}
+#define pic_uart_putc(c) \
+	cdc_putc(USB_PIC_PORT, c);
+void pic_uart_send_cstr(const rom char* s) {
+	cdc_put_cstr(USB_PIC_PORT, s);
 }
-void cdc_put_hex_byte(uint8_t i) {
-	_cdc_put_hex_nibble(MSN(i));
-	_cdc_put_hex_nibble(LSN(i));
+void pic_uart_send_newline();
+void pic_uart_send_newline() {
+	pic_uart_send_cstr("\r\n");
 }
 
+void _pic_uart_send_hex_nibble(uint8_t i) {
+	i &= i;
+	if (i > 9) {
+		pic_uart_putc('A'+(i-10));
+	} else if (i <= 16) {
+		pic_uart_putc('0'+i);
+	} else {
+		pic_uart_putc('?');
+	}
+}
+void pic_uart_send_hex_byte(uint8_t i) {
+	_pic_uart_send_hex_nibble(MSN(i));
+	_pic_uart_send_hex_nibble(LSN(i));
+}
 
 void usb_pic_uart_init(void) {
 	// Output the prompt
@@ -122,14 +130,13 @@ void usb_pic_uart_service(void) {
 
 		// Clear current command
 		if (c == 0x3) {
-			cdc_put_cstr(USB_PIC_PORT, "^C");
+			pic_uart_send_cstr("^C");
 			recv_buffer_i = 0;
 			c = '\n';
 		}
 		// Command complete
 		if (c == '\n' || c == '\r') {
-			cdc_putc(USB_PIC_PORT, '\r');
-			cdc_putc(USB_PIC_PORT, '\n');
+			pic_uart_send_newline();
 			recv_buffer[recv_buffer_i] = '\0';
 
 			// Run the command
@@ -143,27 +150,26 @@ void usb_pic_uart_service(void) {
 					}
 				}
 				if (!c) {
-					cdc_put_cstr(USB_PIC_PORT, "Unknown command '");
+					pic_uart_send_cstr("Unknown command '");
 					for(i = 0; i < recv_buffer_i; i++) {
-						cdc_putc(USB_PIC_PORT, recv_buffer[i]);
+						pic_uart_putc(recv_buffer[i]);
 					}
-					cdc_put_cstr(USB_PIC_PORT, "'. Try 'help'.");
+					pic_uart_send_cstr("'. Try 'help'.");
 				}
-				cdc_putc(USB_PIC_PORT, '\r');
-				cdc_putc(USB_PIC_PORT, '\n');
+				pic_uart_send_newline();
 			}
 
 			// Output the prompt
-			cdc_putc(USB_PIC_PORT, '>');
-			cdc_putc(USB_PIC_PORT, ' ');
+			pic_uart_putc('>');
+			pic_uart_putc(' ');
 			recv_buffer_i = 0;
 
 		// Allow backspace & delete
 		} else if ((c == '\b' || c == 177 || c == 127)) {
 			if (recv_buffer_i > 0) {
-				cdc_putc(USB_PIC_PORT, '\b');
-				cdc_putc(USB_PIC_PORT, ' ');
-				cdc_putc(USB_PIC_PORT, '\b');
+				pic_uart_putc('\b');
+				pic_uart_putc(' ');
+				pic_uart_putc('\b');
 				recv_buffer_i--;
 			}
 		// Buffer the command line
@@ -180,14 +186,14 @@ void usb_pic_uart_service(void) {
 			if (c == '_')
 				i = true;
 			if (!i) {
-				cdc_put_hex_byte(c);
+				pic_uart_send_hex_byte(c);
 				continue;
 			}
 
-			cdc_putc(USB_PIC_PORT, c);		// Remote Echo
+			pic_uart_putc(c);		// Remote Echo
 			recv_buffer[recv_buffer_i++] = c;
 			if (recv_buffer_i > (MAX_COMMAND_SIZE-1)) {
-				cdc_put_cstr(USB_PIC_PORT, "Command too long.\r\n");
+				pic_uart_send_cstr("Command too long.\r\n");
 				recv_buffer_i = 0;
 			}
 		}
@@ -207,32 +213,11 @@ void command_help(char* args) {
 	if (args == NULL || all) {
 		// Output the list of available commands
 		while(pcmd->handler != NULL) {
-			int i = 0;
 			// Skip internal functions unless given "help all"
-			if (!all && pcmd->help_short == NULL) {
-				pcmd++;
-				continue;
+			if (all || pcmd->help_short != NULL) {
+				pic_uart_send_cstr(pcmd->name);
+				pic_uart_send_newline();
 			}
-
-			// Output the name aligned
-			while(pcmd->name[i] != '\0') {
-				cdc_putc(USB_PIC_PORT, pcmd->name[i]);
-				i++;
-			}
-			for(; i < 10; i++) {
-				cdc_putc(USB_PIC_PORT, ' ');
-			}
-			// Output the short help for the command
-			cdc_putc(USB_PIC_PORT, '-');
-			cdc_putc(USB_PIC_PORT, ' ');
-			if (pcmd->help_short) {
-				cdc_put_cstr(USB_PIC_PORT, pcmd->help_short);
-			} else {
-				cdc_put_cstr(USB_PIC_PORT, "Internal Function");
-			}
-			cdc_putc(USB_PIC_PORT, '\r');
-			cdc_putc(USB_PIC_PORT, '\n');
-
 			pcmd++;
 		}
 	} else {
@@ -244,17 +229,13 @@ void command_help(char* args) {
 			pcmd++;
 		}
 		if (pcmd->handler == NULL) {
-			cdc_put_cstr(USB_PIC_PORT, "Unknown command.");
+			pic_uart_send_cstr("Unknown command.");
 			return;
 		}
-		cdc_put_cstr(USB_PIC_PORT, pcmd->name);
-		cdc_put_cstr(USB_PIC_PORT, "\r\n-----\r\n");
+		pic_uart_send_cstr(pcmd->name);
+		pic_uart_send_cstr("\r\n-----\r\n");
 		if (pcmd->help_short) {
-			cdc_put_cstr(USB_PIC_PORT, pcmd->help_short);
-			cdc_put_cstr(USB_PIC_PORT, "\r\n\r\n");
-		}
-		if (pcmd->help_long) {
-			cdc_put_cstr(USB_PIC_PORT, pcmd->help_long);
+			pic_uart_send_cstr(pcmd->help_short);
 		}
 	}
 }
@@ -275,17 +256,17 @@ void command_adc(char* args) {
 		args = next_token(args);
 		if (args == NULL) {
 		} else if (startswith("on", args)) {
-			cdc_put_cstr(USB_PIC_PORT, "Enabling channel ");
-			_cdc_put_hex_nibble(channel);
+			pic_uart_send_cstr("Enabling channel ");
+			_pic_uart_send_hex_nibble(channel);
 			_adc[channel].enabled = true;
 			return;
 		} else if (startswith("off", args)) {
-			cdc_put_cstr(USB_PIC_PORT, "Disabling channel ");
-			_cdc_put_hex_nibble(channel);
+			pic_uart_send_cstr("Disabling channel ");
+			_pic_uart_send_hex_nibble(channel);
 			_adc[channel].enabled = false;
 			return;
 		} else {
-			cdc_put_cstr(USB_PIC_PORT, "Unknown command.");
+			pic_uart_send_cstr("Unknown command.");
 			return;
 		}
 	}
@@ -295,19 +276,19 @@ void command_adc(char* args) {
 			continue;
 		}
 
-		cdc_put_cstr(USB_PIC_PORT, "Channel ");
-		_cdc_put_hex_nibble(i);
+		pic_uart_send_cstr("Channel ");
+		_pic_uart_send_hex_nibble(i);
 		if (_adc[i].enabled) {
-			cdc_put_cstr(USB_PIC_PORT, " on  ");
+			pic_uart_send_cstr(" on  ");
 		} else {
-			cdc_put_cstr(USB_PIC_PORT, " off ");
+			pic_uart_send_cstr(" off ");
 		}
-		cdc_put_cstr(USB_PIC_PORT, "Value: 0x");
-		cdc_put_hex_byte(_adc[i].data.h);
-		cdc_put_hex_byte(_adc[i].data.l);
-		cdc_put_cstr(USB_PIC_PORT, " (seq: 0x");
-		cdc_put_hex_byte(_adc[i].updated);
-		cdc_put_cstr(USB_PIC_PORT, ")\r\n");
+		pic_uart_send_cstr("Value: 0x");
+		pic_uart_send_hex_byte(_adc[i].data.h);
+		pic_uart_send_hex_byte(_adc[i].data.l);
+		pic_uart_send_cstr(" (seq: 0x");
+		pic_uart_send_hex_byte(_adc[i].updated);
+		pic_uart_send_cstr(")\r\n");
 	}
 }
 
@@ -342,17 +323,17 @@ void command_dump(char* args) {
 	}
 	{
 		uint8_t a;
-		cdc_put_cstr(USB_PIC_PORT, "Dumping from 0x");
+		pic_uart_send_cstr("Dumping from 0x");
 		a = MSB(p);
-		cdc_put_hex_byte(a);
+		pic_uart_send_hex_byte(a);
 		a = LSB(p);
-		cdc_put_hex_byte(a);
-		cdc_put_cstr(USB_PIC_PORT, " to 0x");
+		pic_uart_send_hex_byte(a);
+		pic_uart_send_cstr(" to 0x");
 		a = MSB(end);
-		cdc_put_hex_byte(a);
+		pic_uart_send_hex_byte(a);
 		a = LSB(end);
-		cdc_put_hex_byte(a);
-		cdc_put_cstr(USB_PIC_PORT, "\r\n");
+		pic_uart_send_hex_byte(a);
+		pic_uart_send_newline();
 	}
 
 	do {
@@ -366,24 +347,24 @@ void command_dump(char* args) {
 			} else {
 				line = (uint8_t)(left & 0x00ff);
 			}
-			cdc_putc(USB_PIC_PORT, ':');
-			cdc_put_hex_byte(line);
+			pic_uart_putc(':');
+			pic_uart_send_hex_byte(line);
 			sum += line;
 			// Address
 			{
 				uint8_t addrl = LSB(p);
 				uint8_t addrh = MSB(p);
-				cdc_put_hex_byte(addrh);
+				pic_uart_send_hex_byte(addrh);
 				sum += addrh;
-				cdc_put_hex_byte(addrl);
+				pic_uart_send_hex_byte(addrl);
 				sum += addrl;
 			}
 			// Type
-			cdc_put_cstr(USB_PIC_PORT, "00");
+			pic_uart_send_cstr("00");
 			sum += 0x00;
 		}
 		// Byte of data
-		cdc_put_hex_byte(*p);
+		pic_uart_send_hex_byte(*p);
 		sum += (*p);
 		p++;
 
@@ -391,11 +372,11 @@ void command_dump(char* args) {
 		line--;
 		if (line == 0) {
 			// Check sum
-			cdc_put_hex_byte(-sum);
-			cdc_put_cstr(USB_PIC_PORT, "\r\n");
+			pic_uart_send_hex_byte(-sum);
+			pic_uart_send_newline();
 		}
 	} while (p < end);
-	cdc_put_cstr(USB_PIC_PORT, ":00000001FF\r\n");
+	pic_uart_send_cstr(":00000001FF\r\n");
 }
 #endif
 
@@ -406,43 +387,44 @@ void command_led(char* args) {
 		uint16_t addr = 0;
 		if (*(args+1) == '5') {
 			addr = VEEPROM_LED_START;
-			cdc_put_cstr(USB_PIC_PORT, "LED D5 ");
+			pic_uart_send_cstr("LED D5 ");
 		} else if (*(args+1) == '6') {
 			addr = VEEPROM_LED_START+1;
-			cdc_put_cstr(USB_PIC_PORT, "LED D6 ");
+			pic_uart_send_cstr("LED D6 ");
 		}
 		if (addr > 0) {
+			uint8_t v = veeprom_get(addr);
 			args = next_token(args);
 			if (args == NULL) {
-				if (veeprom_get(addr)) {
-					cdc_put_cstr(USB_PIC_PORT, "is on.");
+				if (v) {
+					pic_uart_send_cstr("is on.");
 				} else {
-					cdc_put_cstr(USB_PIC_PORT, "is off.");
+					pic_uart_send_cstr("is off.");
 				}
-			} else if (startswith("on", args)) {
-				veeprom_set(addr, 1);
-				cdc_put_cstr(USB_PIC_PORT, "turned on.");
-			} else if (startswith("off", args)) {
-				veeprom_set(addr, 0);
-				cdc_put_cstr(USB_PIC_PORT, "turned off.");
-			} else if (startswith("toggle", args)) {
-				if (veeprom_get(addr)) {
-					veeprom_set(addr, 0);
-					cdc_put_cstr(USB_PIC_PORT, "turned off.");
+			} else {
+				if (startswith("on", args)) {
+					v = 1;
+				} else if (startswith("off", args)) {
+					v = 0;
+				} else if (startswith("toggle", args)) {
+					v = !v;
+				}
+				veeprom_set(addr, v);
+				if (v) {
+					pic_uart_send_cstr("turned off.");
 				} else {
-					veeprom_set(addr, 1);
-					cdc_put_cstr(USB_PIC_PORT, "turned on.");
+					pic_uart_send_cstr("turned on.");
 				}
 			}
 			return;
 		}
 	}
-	cdc_put_cstr(USB_PIC_PORT, "Unknown command.");
+	pic_uart_send_cstr("Unknown command.");
 }
 
 void command_ping(char* args) {
 //	 "Command to test the firmware is responding."
-	cdc_put_cstr(USB_PIC_PORT, "PONG!");
+	pic_uart_send_cstr("PONG!");
 }
 
 void command_prom(char* args) {
@@ -458,7 +440,7 @@ void command_prom(char* args) {
 			addr = atoi(args);
 		}
 		if (addr < 0) {
-			cdc_put_cstr(USB_PIC_PORT, "Invalid address.");
+			pic_uart_send_cstr("Invalid address.");
 			return;
 		}
 		args = next_token(args);
@@ -466,13 +448,13 @@ void command_prom(char* args) {
 			data = atoi(args);
 		}
 		if (data < 0 || data > 0xff) {
-			cdc_put_cstr(USB_PIC_PORT, "Invalid data.");
+			pic_uart_send_cstr("Invalid data.");
 			return;
 		}
 		if (read) {
 			while(data > 0) {
-				cdc_put_hex_byte(veeprom_get(addr));
-				cdc_putc(USB_PIC_PORT, ' ');
+				pic_uart_send_hex_byte(veeprom_get(addr));
+				pic_uart_putc(' ');
 				addr++;
 				data--;
 			}
@@ -482,12 +464,12 @@ void command_prom(char* args) {
 		}
 		return;
 	}
-	cdc_put_cstr(USB_PIC_PORT, "Unknown command.");
+	pic_uart_send_cstr("Unknown command.");
 }
 
 bool _reboot_countdown(uint8_t c) {
 	uint16_t i, j;
-	cdc_putc(USB_PIC_PORT, '0'+c);
+	pic_uart_putc('0'+c);
 	cdc_flush_in_now(USB_PIC_PORT);
 	for(j = 0; j < 0xf; j++) {
 		for(i = 0; i < 0xffff; i++) {
@@ -495,7 +477,7 @@ bool _reboot_countdown(uint8_t c) {
         	        usb_handler();
 #endif
 		}
-		cdc_putc(USB_PIC_PORT, '.');
+		pic_uart_putc('.');
 		cdc_flush_in_now(USB_PIC_PORT);
 		if(cdc_peek_getc(USB_PIC_PORT, &c)) {
 			return false;
@@ -531,14 +513,14 @@ void command_reboot(char* args) {
 //         "reboot flash - Reboot into firmware upgrade mode."
 	bool flash = (args != NULL && *args == 'f');
 
-	cdc_put_cstr(USB_PIC_PORT, "Rebooting");
+	pic_uart_send_cstr("Rebooting");
 	if (flash) {
-		cdc_put_cstr(USB_PIC_PORT, "to the firmware bootloader");
+		pic_uart_send_cstr("to the firmware bootloader");
 	}
-	cdc_put_cstr(USB_PIC_PORT, "\r\n");
+	pic_uart_send_newline();
 
 	if(!_reboot_prepare()) {
-		cdc_put_cstr(USB_PIC_PORT, "Aborting!\r\n");
+		pic_uart_send_cstr("Aborting!\r\n");
 		return;
 	}
 
@@ -564,9 +546,9 @@ void command_usb_spam(char* args) {
 	unsigned char c = 0;
 	uint8_t i = 0;
 	while (!cdc_peek_getc(USB_PIC_PORT, &c)) {
-		cdc_put_hex_byte(i);
+		pic_uart_send_hex_byte(i);
 		if (i % 16 == 0) {
-			cdc_put_cstr(USB_PIC_PORT, "\r\n");
+			pic_uart_send_newline();
 		}
 		i++;
 	}
@@ -579,8 +561,8 @@ void command_usb_reset(char* args) {
 #endif
 
 void command_version(char* args) {
-	cdc_put_cstr(USB_PIC_PORT, GIT_VERSION_HUMAN);
-	cdc_put_cstr(USB_PIC_PORT, "\r\n");
-	cdc_put_cstr(USB_PIC_PORT, GIT_VERSION_HASH);
-	cdc_put_cstr(USB_PIC_PORT, "\r\n");
+	pic_uart_send_cstr(GIT_VERSION_HUMAN);
+	pic_uart_send_newline();
+	pic_uart_send_cstr(GIT_VERSION_HASH);
+	pic_uart_send_newline();
 }
