@@ -451,7 +451,6 @@ void cdc_put_cstr(BYTE port, const rom char* msg) {
 // Waits for a byte to be available and returns that byte as a
 // function return value. The byte is removed from the CDC OUT queue.
 // No return count is required as this function always returns one byte.
-
 BYTE cdc_getc(BYTE port) { // Must be used only in double buffer mode.
     BYTE c = 0;
 
@@ -472,7 +471,7 @@ BYTE cdc_getc(BYTE port) { // Must be used only in double buffer mode.
 // and the function returns a count of 1. The byte is effectively
 // removed from the queue.
 // IF no byte is available function returns immediately with a count of zero.
-
+/*
 BYTE cdc_poll_getc(BYTE port, BYTE * c) { // Must be used only in double buffer mode.
     if (cdcdata_OutLen[port]) { // Do we have a byte waiting?
         *c = *(cdcdata_OutPtr[port]); // pass it on and adjust cdcdata_OutPtr and count
@@ -491,6 +490,7 @@ BYTE cdc_poll_getc(BYTE port, BYTE * c) { // Must be used only in double buffer 
     }
     return 0;
 }
+*/
 
 /******************************************************************************/
 // Checks (PEEKS) to see if there is a byte available in the CDC buffer.
@@ -499,7 +499,6 @@ BYTE cdc_poll_getc(BYTE port, BYTE * c) { // Must be used only in double buffer 
 // removed from the queue and can still be read with the cdc_poll_getc()
 // and getc_cdc() functions that will remove it from the queue.
 // IF no byte is available function returns immediately with a count of zero.
-
 BYTE cdc_peek_getc(BYTE port, BYTE * c) { // Must be used only in double buffer mode.
     if (cdcdata_OutLen[port]) {
         *c = *(cdcdata_OutPtr[port]);
