@@ -76,13 +76,13 @@ void usb_fpga_uart_service(void) {
 	}
 
 	if(TXSTAbits.TRMT && cdc_peek_getc(USB_FPGA_PORT, &c)) {
-		debug_send_cdata("TX\r\n");
+		//debug_send_cdata("TX\r\n");
 		c = cdc_getc(USB_FPGA_PORT);
 		TXREG = c;
 	}
 
 	if (PIR1bits.RCIF) {
-		debug_send_cdata("RX\r\n");
+		//debug_send_cdata("RX\r\n");
 		c = RCREG;
 		cdc_putc(USB_FPGA_PORT, c);
 	}
