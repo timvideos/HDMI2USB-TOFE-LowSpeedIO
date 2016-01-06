@@ -98,6 +98,13 @@ void Remapped_Low_ISR(void) {
 	_asm goto InterruptHandlerLow _endasm
 }
 
+
+#define APP_SIGNATURE_ADDRESS                   0x1006  //0x1006 and 0x1007 contains the "signature" WORD, indicating successful erase/program/verify operation
+#define APP_VERSION_ADDRESS                     0x1016  //0x1016 and 0x1017 should contain the application image firmware version number
+
+
+
+
 //relocate the reset vector
 //extern void _startup(void);
 //#pragma code REMAPPED_RESET_VECTOR = REMAPPED_RESET_VECTOR_ADDRESS
@@ -106,15 +113,15 @@ void Remapped_Low_ISR(void) {
 //}
 
 //set the initial vectors so this works without the bootloader too.
-#pragma code HIGH_INTERRUPT_VECTOR = 0x08
-void High_ISR(void) {
-	_asm goto REMAPPED_HIGH_INTERRUPT_VECTOR_ADDRESS _endasm
-}
+//#pragma code HIGH_INTERRUPT_VECTOR = 0x08
+//void High_ISR(void) {
+//	_asm goto REMAPPED_HIGH_INTERRUPT_VECTOR_ADDRESS _endasm
+//}
 
-#pragma code LOW_INTERRUPT_VECTOR = 0x18
-void Low_ISR(void) {
-	_asm goto REMAPPED_LOW_INTERRUPT_VECTOR_ADDRESS _endasm
-}
+//#pragma code LOW_INTERRUPT_VECTOR = 0x18
+//void Low_ISR(void) {
+//	_asm goto REMAPPED_LOW_INTERRUPT_VECTOR_ADDRESS _endasm
+//}
 
 //#pragma code RESET_VECTOR = 0x0
 //void _reset(void) {
@@ -122,5 +129,10 @@ void Low_ISR(void) {
 //}
 
 #endif // defined(USB_INTERRUPTS)
+
+#pragma romdata FLASH_APPSIG_SECTION = APP_SIGNATURE_ADDRESS
+ROM unsigned int FlashAppSignatureWord = 0x0;
+#pragma romdata FLASH_APPVER_SECTION = APP_VERSION_ADDRESS
+ROM unsigned int FlashAppVersionWord = 0x0;
 
 #pragma code

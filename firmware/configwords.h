@@ -125,9 +125,9 @@
         #pragma config MCLRE = OFF
 
 // configword 0x300006 - CONFIG4L
-        #pragma config DEBUG = ON // BKBUG
+        #pragma config DEBUG = OFF // BKBUG
         #pragma config STVREN = ON
-        #pragma config LVP = OFF
+        #pragma config LVP = ON
         #pragma config XINST = OFF
 
 // configword 0x300008 - CONFIG5L
