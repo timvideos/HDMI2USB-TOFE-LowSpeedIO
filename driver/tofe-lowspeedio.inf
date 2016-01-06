@@ -1,0 +1,69 @@
+;
+; tofe-lowspeedio.inf  Communication Device Class driver installation file
+;
+
+[Version]
+Signature="$Windows NT$"
+Class=Ports
+ClassGuid={4D36E978-E325-11CE-BFC1-08002BE10318}
+Provider=%NUMATOTV%
+;;; LayoutFile=layout.inf ;; not supported in Vista and later
+DriverVer =04/14/2008, 5.1.2600.5512
+
+[Manufacturer]
+%NUMATOTV%=DeviceList,ntamd64
+
+;------------------------------------------------------------------------------
+;  Device list
+;------------------------------------------------------------------------------
+
+[DeviceList]
+%DESCRIPTION1%=TOFELOWSPEEDIO,USB\VID_2A19&PID_5445&MI_00
+%DESCRIPTION2%=TOFELOWSPEEDIO,USB\VID_2A19&PID_5445&MI_02
+
+[DeviceList.ntamd64]
+%DESCRIPTION1%=TOFELOWSPEEDIO,USB\VID_2A19&PID_5445&MI_00
+%DESCRIPTION2%=TOFELOWSPEEDIO,USB\VID_2A19&PID_5445&MI_02
+
+;------------------------------------------------------------------------------
+;  Installation
+;------------------------------------------------------------------------------
+
+[SourceDisksNames]
+;;; this blank section satisfies chkinf
+[SourceDisksFiles]
+;;; this blank section satisfies chkinf
+
+[DestinationDirs]
+FakeModemCopyFileSection=12
+DefaultDestDir = 12
+
+[TOFELOWSPEEDIO]
+include=mdmcpq.inf
+CopyFiles=FakeModemCopyFileSection
+AddReg= TOFELOWSPEEDIO.AddReg
+
+[TOFELOWSPEEDIO.AddReg]
+HKR,,DevLoader,,*ntkern
+HKR,,NTMPDriver,,usbser.sys
+HKR,,EnumPropPages32,,"MsPorts.dll,SerialPortPropPageProvider"
+
+[TOFELOWSPEEDIO.Services]
+AddService=usbser, 0x00000002, DriverService
+
+[DriverService]
+DisplayName=%DRIVER.SVC%
+ServiceType=1
+StartType=3
+ErrorControl=1
+ServiceBinary=%12%\usbser.sys
+
+;------------------------------------------------------------------------------
+;  String Definitions
+;------------------------------------------------------------------------------
+
+[Strings]
+NUMATOTV    = "Numato Lab & TimVideos.us"
+DRIVER.SVC  = "TOFE Low Speed IO Driver"
+DESCRIPTION1= "TOFE Low Speed IO Board - FPGA UART"
+DESCRIPTION2= "TOFE Low Speed IO Board - PIC Command Line"
