@@ -117,7 +117,8 @@ void usb_start(void) {
     usb_device_state = DEFAULT_STATE; //JTR2
 
     // Enable interrupts
-#if defined USB_INTERRUPTS
+#ifdef USB_INTERRUPTS
+    EnableAllUsbErrorInterrupts();
     EnableUsbPerifInterrupts(USB_TRN + USB_SOF + USB_UERR + USB_URST);
 
     INTCONbits.PEIE = 1;
@@ -231,6 +232,7 @@ void usb_handler(void) {
         //     usb_handle_error();
         ClearAllUsbErrorInterruptFlags();
         ClearUsbInterruptFlag(USB_UERR);
+	usb_hard_reset();
     }
     if (USB_STALL_FLAG) {
         ClearUsbInterruptFlag(USB_STALL);

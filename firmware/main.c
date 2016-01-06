@@ -36,28 +36,29 @@ void main(void) {
 
 	cdc_init(); // setup the CDC state machine
 	usb_init(cdc_device_descriptor, cdc_config_descriptor, cdc_str_descs, cdc_str_serial, USB_NUM_STRINGS);
-	usb_service_init_after_configured = false;
 	usb_start(); //start the USB peripheral
 
+	usb_service_init_after_configured = false;
 	do {
-		if (usb_device_state < CONFIGURED_STATE) {
-			usb_service_init_after_configured = false;
-			continue;
-		}
+
+		adc_service();
+		veeprom_i2c_service();
 
 #ifndef USB_INTERRUPTS
 		usb_handler();
 #endif
-		adc_service();
-		veeprom_i2c_service();
-
-		if (!usb_service_init_after_configured) {
+		if (usb_device_state < CONFIGURED_STATE) {
+			veeprom_set(VEEPROM_LED_START, 1);
+			usb_service_init_after_configured = false;
+		} else if (!usb_service_init_after_configured) {
+			veeprom_set(VEEPROM_LED_START, 0);
 			usb_fpga_uart_init();
 			usb_pic_uart_init();
 			usb_service_init_after_configured = true;
+		} else {
+			usb_fpga_uart_service();
+			usb_pic_uart_service();
 		}
-		usb_fpga_uart_service();
-		usb_pic_uart_service();
 	} while(1);
 }
 
