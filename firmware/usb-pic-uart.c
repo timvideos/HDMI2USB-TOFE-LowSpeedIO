@@ -411,9 +411,9 @@ void command_led(char* args) {
 				}
 				veeprom_set(addr, v);
 				if (v) {
-					pic_uart_send_cstr("turned off.");
-				} else {
 					pic_uart_send_cstr("turned on.");
+				} else {
+					pic_uart_send_cstr("turned off.");
 				}
 			}
 			return;
@@ -515,7 +515,7 @@ void command_reboot(char* args) {
 
 	pic_uart_send_cstr("Rebooting");
 	if (flash) {
-		pic_uart_send_cstr("to the firmware bootloader");
+		pic_uart_send_cstr(" to the firmware bootloader");
 	}
 	pic_uart_send_newline();
 

@@ -224,10 +224,12 @@ void _veeprom_set_led(uint8_t addr, uint8_t data) {
 	switch(object) {
 	case 0:
 		// D5
-		PORTCbits.RC5 = data;
+		LATCbits.LATC5 = data;
+		return;
 	case 1:
 		// D6
-		PORTCbits.RC4 = data;
+		LATCbits.LATC4 = data;
+		return;
 	}
 }
 
@@ -337,9 +339,14 @@ void veeprom_i2c_init(void) {
 	_veeprom_i2c_addr_current = 0;
 	_veeprom_i2c_addr_shadow = 0;
 
+	// Disable the ECCP module which is also on the LED pins
+	CCP1CONbits.CCP1M = 0;
 	// Set the LED ports as output
-	TRISCbits.RC5 = 0; // LED D5
-	TRISCbits.RC4 = 0; // LED D6
+	TRISCbits.TRISC5 = 0; // LED D5
+	TRISCbits.TRISC4 = 0; // LED D6
+	// LEDs on by default
+	LATCbits.LATC5 = 1;
+	LATCbits.LATC4 = 1;
 
 	// Set SCL and SDA as inputs
 	TRISBbits.RB6 = 1;	// SCL
