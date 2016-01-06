@@ -44,8 +44,8 @@ const rom struct command commands[] = {
 	},
 	{"adc", command_adc, "ADC control command.",
 	},
-	{"debug", command_adc, "Control debug output.",
-	},
+//	{"debug", command_debug, "Control debug output.",
+//	},
 #ifdef DEBUG_FLASH
 	{"dump", command_dump, "Dump the PIC flash contents in Intel HEX format.",
         },
