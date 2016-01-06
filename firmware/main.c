@@ -30,7 +30,13 @@ extern BYTE usb_device_state;
 #pragma code
 bool usb_service_init_after_configured;
 
+void clear_watchdog(void) {
+	ClrWdt();
+}
+
 void main(void) {
+	WDTCONbits.SWDTEN = 1;
+
 	adc_init();
 	veeprom_i2c_init();
 
@@ -40,6 +46,7 @@ void main(void) {
 
 	usb_service_init_after_configured = false;
 	do {
+		clear_watchdog();
 
 		adc_service();
 		veeprom_i2c_service();

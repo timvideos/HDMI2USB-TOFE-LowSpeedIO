@@ -507,6 +507,10 @@ bool _reboot_prepare(void) {
 	for(i = 0; i < 0xff; i++) {
 		_asm nop _endasm
 	}
+
+	// Disable watchdog
+	WDTCONbits.SWDTEN = 0;
+
 	return true;
 }
 
