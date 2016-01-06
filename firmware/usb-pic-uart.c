@@ -126,6 +126,8 @@ void usb_pic_uart_service(void) {
 	unsigned char c;
 
 	while (cdc_peek_getc(USB_PIC_PORT, &c)) {
+		veeprom_set(VEEPROM_LED_START, !veeprom_get(VEEPROM_LED_START));
+
 		c = cdc_getc(USB_PIC_PORT);
 
 		// Clear current command
