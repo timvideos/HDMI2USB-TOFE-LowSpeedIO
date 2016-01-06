@@ -13,7 +13,7 @@
 #include "virtual-i2c-eeprom.h"
 #include "version.h"
 
-#define MAX_COMMAND_SIZE 16
+#define MAX_COMMAND_SIZE 32
 
 #pragma code
 uint8_t recv_buffer_i = 0;
