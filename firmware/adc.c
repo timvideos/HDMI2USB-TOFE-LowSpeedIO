@@ -80,37 +80,37 @@ void adc_service(void) {
 	//Select channel
 	switch(_adc_current_channel){
 	case 0:
-		ADCON0bits.CHS0 = 0;
-		ADCON0bits.CHS1 = 1;
-		ADCON0bits.CHS2 = 1;
-		ADCON0bits.CHS3 = 0;
-		break;
-	case 1:
-		ADCON0bits.CHS0 = 1;
-		ADCON0bits.CHS1 = 0;
-		ADCON0bits.CHS2 = 1;
-		ADCON0bits.CHS3 = 0;
-		break;
-	case 2:
-		ADCON0bits.CHS0 = 0;
-		ADCON0bits.CHS1 = 0;
-		ADCON0bits.CHS2 = 1;
-		ADCON0bits.CHS3 = 0;
-		break;
-	case 3:
 		ADCON0bits.CHS0 = 1;
 		ADCON0bits.CHS1 = 0;
 		ADCON0bits.CHS2 = 0;
 		ADCON0bits.CHS3 = 1;	
 		break;
-	case 4:
+	case 1:
 		ADCON0bits.CHS0 = 0;
 		ADCON0bits.CHS1 = 0;
 		ADCON0bits.CHS2 = 0;
 		ADCON0bits.CHS3 = 1;
 		break;
-	case 5:
+	case 2:
 		ADCON0bits.CHS0 = 1;
+		ADCON0bits.CHS1 = 1;
+		ADCON0bits.CHS2 = 1;
+		ADCON0bits.CHS3 = 0;
+		break;
+	case 3:
+		ADCON0bits.CHS0 = 0;
+		ADCON0bits.CHS1 = 0;
+		ADCON0bits.CHS2 = 1;
+		ADCON0bits.CHS3 = 0;
+		break;
+	case 4:
+		ADCON0bits.CHS0 = 1;
+		ADCON0bits.CHS1 = 0;
+		ADCON0bits.CHS2 = 1;
+		ADCON0bits.CHS3 = 0;
+		break;
+	case 5:
+		ADCON0bits.CHS0 = 0;
 		ADCON0bits.CHS1 = 1;
 		ADCON0bits.CHS2 = 1;
 		ADCON0bits.CHS3 = 0;
