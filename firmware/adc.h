@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-#define ADC_CHANNELS 5u
+#define ADC_CHANNELS 6u
 
 struct adc {
         uint8_t enabled;
