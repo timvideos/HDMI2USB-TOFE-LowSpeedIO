@@ -55,8 +55,10 @@ void usb_fpga_uart_init(void) {
 	// 1 OERR=0 -- Over run error
 	// 0 RX9D=0 -- 9th bit
 	RCSTA = 0x90;		// Single Character RX
-	SPBRG = 0xE1;
-	SPBRGH = 0x04;		// 0x04E1 for 48MHz -> 9600 baud rate
+	//SPBRG = 0xE1;
+	//SPBRGH = 0x04;		// 0x04E1 (1249) for 48MHz -> 9600 baud rate
+    SPBRG = 103;            // 103 == 115.2k
+    SPBRGH = 0;
 	BAUDCON = 0x08;		// BRG16 = 1
 	usb_fpga_uart_reset();
 }
