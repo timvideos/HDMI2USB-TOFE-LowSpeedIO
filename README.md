@@ -40,6 +40,8 @@ available.
 
 ![Board Image](img/above.jpg)
 
+A PDF version of schematic can be found [here](img/TOFE-LowSpeedIO-v0.0.1.pdf).
+
 ## Editing
 
 The design in this repository was made using [KiCad](http://www.kicad-pcb.org/)
