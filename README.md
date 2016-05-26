@@ -17,6 +17,8 @@ created.
 
 ![Board Image](img/above.jpg)
 
+## Features
+
 The "Low Speed I/O" board has the following features;
 
  * 1 x Arduino compatible pin header. (With on board ADC enabling analog pins
