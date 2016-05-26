@@ -40,7 +40,7 @@ The "Low Speed I/O" board has the following features;
 that when the Arduino compatible pin header is in use only 2 Pmod headers are
 available.
 
-A PDF version of schematic can be found [here](img/TOFE-LowSpeedIO-v0.0.1.pdf).
+A PDF version of schematic can be found in the [docs](docs) directory.
 
 ## Editing
 
