@@ -38,6 +38,8 @@ The "Low Speed I/O" board has the following features;
 that when the Arduino compatible pin header is in use only 2 Pmod headers are
 available.
 
+![Board Image](img/above.jpg)
+
 ## Editing
 
 The design in this repository was made using [KiCad](http://www.kicad-pcb.org/)
