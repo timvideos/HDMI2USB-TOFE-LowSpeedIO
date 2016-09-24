@@ -1,16 +1,11 @@
-update=02/12/2015 03:06:43 PM
+update=Sat 24 Sep 2016 17:35:04 AEST
 version=1
-last_client=pcbnew
+last_client=kicad
 [general]
 version=1
 [eeschema]
 version=1
 LibDir=../libraries
-NetFmtName=PcbnewAdvanced
-RptD_X=0
-RptD_Y=100
-RptLab=1
-LabSize=60
 [eeschema/libraries]
 LibName1=power
 LibName2=device
@@ -44,6 +39,7 @@ LibName29=contrib
 LibName30=valves
 LibName31=TOFE
 LibName32=TOFE-LowSpeedIO-cache
+LibName33=TOFE-LowSpeedIO-rescue
 [cvpcb]
 version=1
 NetIExt=net
