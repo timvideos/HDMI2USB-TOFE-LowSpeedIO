@@ -15,6 +15,10 @@ features for interfacing with more pedestrian speed devices such as buttons or
 LEDs. To help solve this problem “Low speed I/O” TOFE expansion board was
 created.
 
+![Board Image](img/above.jpg)
+
+## Features
+
 The "Low Speed I/O" board has the following features;
 
  * 1 x Arduino compatible pin header. (With on board ADC enabling analog pins
@@ -37,6 +41,8 @@ The "Low Speed I/O" board has the following features;
 [1]: Two of the Pmod headers share pins with the Arduino header. This means
 that when the Arduino compatible pin header is in use only 2 Pmod headers are
 available.
+
+A PDF version of schematic can be found in the [docs](docs) directory.
 
 ## Editing
 
