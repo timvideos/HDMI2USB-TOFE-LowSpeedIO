@@ -1,15 +1,11 @@
-
-[![CrowdSupply Image](http://planet.timvideos.us/numato-opsis-crowdfunding-campaign-master/badge.png)](https://www.crowdsupply.com/numato-lab/opsis)
-
 The <a href="http://hdmi2usb.tv/numato-opsis">Numato Opsis</a>, the first open hardware for the
 <a href="http://hdmi2usb.tv">HDMI2USB firmware</a>,
-<a href="https://www.crowdsupply.com/numato-lab/opsis">can now be ordered on 
- ![CrowdSupply](https://www.crowdsupply.com/_teal/images/crowd-supply-logo-dark.png)
+<a href="https://numato.com/product/numato-opsis-fpga-based-open-video-platform">can now be ordered from Numato Labs
 </a>
 
 ## Low Speed I/O - TOFE Expansion board
 
-While the [Numato Opsis board](https://www.crowdsupply.com/numato-lab/opsis)
+While the [Numato Opsis board](https://numato.com/product/numato-opsis-fpga-based-open-video-platform)
 has a massive amount of high speed I/O interfaces, it doesn't include many
 features for interfacing with more pedestrian speed devices such as buttons or
 LEDs. To help solve this problem “Low speed I/O” TOFE expansion board was
@@ -29,7 +25,7 @@ The "Low Speed I/O" board has the following features;
    including boards from 
    [Numato Lab](http://numato.com/fpga-boards/filter/cat/expansion-modules.html?limit=30),
    [Digilent](http://digilentinc.com/pmods),
-   [Maxim](https://www.maximintegrated.com/en/design/design-technology/fpga-design-resources/pmod-compatible-plug-in-peripheral-modules.html) and 
+   [Maxim](https://www.maximintegrated.com/en/design/design-technology/fpga-design-resources/pmod-compatible-plug-in-peripheral-modules.html) and
    [Analog](https://wiki.analog.com/resources/alliances/xilinx#pmods).
 
  * 1 x USB-UART, allowing low speed serial operation.
